@@ -28,6 +28,12 @@ class Options:
         self.font_body  = pygame.font.SysFont("monospace", 18)
         self.font_back  = pygame.font.SysFont("monospace", 20, bold=True)
 
+        # Icon options
+        raw = load_image("assets/images/options.png")
+        w, h = raw.get_size()
+        self.options_img  = pygame.transform.scale(raw, (w * 3, h * 3))
+        self.options_rect = self.options_img.get_rect(center=(self.W // 2, 100))
+
         # Return Button
         back_w, back_h = 160, 50
         self.back_rect = pygame.Rect(
@@ -48,7 +54,8 @@ class Options:
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
 
-        # Placeholder
+        # Title 
+        self.screen.blit(self.options_img, self.options_rect)
         msg = self.font_body.render("(à venir)", True, TEXT_COLOR)
         self.screen.blit(msg, msg.get_rect(center=(self.W // 2, self.H // 2)))
 
