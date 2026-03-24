@@ -1,4 +1,4 @@
-# COLORS (r, g, b)
+
 import pygame
 import os
 
