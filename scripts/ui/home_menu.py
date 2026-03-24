@@ -37,6 +37,7 @@ class HomeMenu:
         self.btn_shop       = Button("assets/images/store.png",    center=(cx, 560))
 
         # Ads
+        self.ads_removed = False
         fruit_ad = load_image("assets/images/fruit_ad.png")
         pokemon_ad = load_image("assets/images/pokemon_ad.png")
         ad_w, ad_h = fruit_ad.get_size() 
@@ -61,11 +62,11 @@ class HomeMenu:
             return ("new_game", params["grid"], bombs)
         
         # Ad
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.ad_left_rect.collidepoint(event.pos) :
+        if not self.ads_removed and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self.ad_left_rect.collidepoint(event.pos):
                 webbrowser.open("https://github.com/nelson-grac-aubert/fruit-slicer/releases")
                 return None
-            elif self.ad_right_rect.collidepoint(event.pos) :
+            elif self.ad_right_rect.collidepoint(event.pos):
                 webbrowser.open("https://github.com/ceciliaperana13/pokemon_")
                 return None
 
@@ -87,8 +88,11 @@ class HomeMenu:
         self.btn_difficulty.draw(self.screen)
         self.btn_options.draw(self.screen)
         self.btn_shop.draw(self.screen)
-        self.screen.blit(self.fruit_img, self.ad_left_rect)
-        self.screen.blit(self.pokemon_img, self.ad_right_rect)
+
+        # Ads
+        if not self.ads_removed:
+            self.screen.blit(self.fruit_img, self.ad_left_rect)
+            self.screen.blit(self.pokemon_img, self.ad_right_rect)
 
     def _draw_card(self) -> None:
         margin = 250

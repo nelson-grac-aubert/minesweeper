@@ -19,7 +19,7 @@ WINDOW_TITLE       = "MICROTRANSACMINE"
 # SCREENS
 SCREEN_HOME = "home"
 SCREEN_OPTIONS  = "options"
-SCREEN_shop = "shop"
+SCREEN_SHOP = "shop"
 SCREEN_GAME     = "game"     # Adrien et Cécilia
 
 
@@ -52,7 +52,7 @@ def main() -> None:
             elif current == SCREEN_OPTIONS:
                 action = options.handle_event(event)
 
-            elif current == SCREEN_shop:
+            elif current == SCREEN_SHOP:
                 action = shop.handle_event(event)
 
             # Transitions between screens
@@ -60,10 +60,14 @@ def main() -> None:
                 current = SCREEN_OPTIONS
 
             elif action == "shop":
-                current = SCREEN_shop
+                current = SCREEN_SHOP
 
             elif action == "home":
                 current = SCREEN_HOME
+
+            elif action == "remove_ads":
+                home.ads_removed = True
+                current = SCREEN_SHOP
 
             elif isinstance(action, tuple) and action[0] == "new_game":
                 _, grid_size, num_bombs = action
@@ -77,7 +81,7 @@ def main() -> None:
             home.draw()
         elif current == SCREEN_OPTIONS:
             options.draw()
-        elif current == SCREEN_shop:
+        elif current == SCREEN_SHOP:
             shop.draw()
 
         pygame.display.flip()
