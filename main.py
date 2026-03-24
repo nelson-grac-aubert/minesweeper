@@ -68,7 +68,7 @@ def main() -> None:
             elif isinstance(action, tuple) and action[0] == "new_game":
                 _, grid_size, num_bombs = action
                 print(f"[main] Nouvelle partie → grille {grid_size}×{grid_size}, {num_bombs} bombes")
-                # TODO : instancier et lancer l'écran de jeu ici
+                # TODO : instantiate game screen here
                 # current = SCREEN_GAME
                 # game = Game(screen, grid_size, num_bombs)
 
