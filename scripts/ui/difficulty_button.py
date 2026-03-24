@@ -13,14 +13,15 @@ DIFFICULTIES = ["easy", "medium", "hard"]
 class DifficultyButton(Button):
     """Cycle easy → medium → hard on left click"""
 
-    def __init__(self, center: tuple[int, int]):
+    def __init__(self, center: tuple[int, int], scale = 3):
         self._index  = 0
+        self.scale = scale
         self._images: dict[str, pygame.Surface] = {}
 
         for name in DIFFICULTIES:
             raw = load_image(f"assets/images/{name}.png")
             w, h = raw.get_size()
-            self._images[name] = pygame.transform.scale(raw, (w * self.SCALE, h * self.SCALE))
+            self._images[name] = pygame.transform.scale(raw, (w * self.scale, h * self.scale))
 
         self.image = self._images["easy"]
         self.rect  = self.image.get_rect(center=center)

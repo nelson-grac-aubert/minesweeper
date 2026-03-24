@@ -18,8 +18,16 @@ class Shop:
 
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
+        # Back button font
         self.font_back_button  = pygame.font.SysFont("monospace", 20, bold=True)
+        # Button remove ads
         self.btn_remove_ads   = Button("assets/images/remove_ads.png", center=(500, 270))
+        # Button buy flag skin
+        self.flag_button_scale = 1
+        self.flag_buttons_y = 450
+        self.btn_flag = Button("assets/images/shop_flag.png", (250, self.flag_buttons_y), self.flag_button_scale)
+        self.btn_blue_flag = Button("assets/images/shop_flag_blue.png", (500, self.flag_buttons_y), self.flag_button_scale)
+        self.btn_gold_flag = Button("assets/images/shop_flag_gold.png", (750, self.flag_buttons_y), self.flag_button_scale)
 
         # Icon shop
         raw = load_image("assets/images/store.png")
@@ -49,6 +57,11 @@ class Shop:
 
         # Button remove ads
         self.btn_remove_ads.draw(self.screen)
+
+        # Button buy flags
+        self.btn_flag.draw(self.screen)
+        self.btn_blue_flag.draw(self.screen)
+        self.btn_gold_flag.draw(self.screen)
 
         # Title
         self.screen.blit(self.store_img, self.store_rect)

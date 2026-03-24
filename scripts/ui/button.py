@@ -9,12 +9,11 @@ from scripts.logic.utils.assets_imports import load_image
 class Button:
     """Bouton cliquable à partir d'une image PNG scalée."""
 
-    SCALE = 3  # zoom factor for pixel art assets
-
-    def __init__(self, image_path: str, center: tuple[int, int]):
+    def __init__(self, image_path: str, center: tuple[int, int], scale = 3):
         raw = load_image(image_path)
         w, h = raw.get_size()
-        self.image = pygame.transform.scale(raw, (w * self.SCALE, h * self.SCALE))
+        self.scale = scale
+        self.image = pygame.transform.scale(raw, (w * self.scale, h * self.scale))
         self.rect  = self.image.get_rect(center=center)
 
         self._hover_surf = pygame.Surface(self.rect.size, pygame.SRCALPHA)
