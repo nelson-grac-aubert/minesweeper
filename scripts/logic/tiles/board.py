@@ -1,6 +1,6 @@
 import random
 import pygame
-from Tile_class import *
+from Tile_class import Tile
 from settings import *
 
 class Board:
