@@ -1,6 +1,6 @@
 import random
 from Tile_class import Tile
-from settings import tile_unknown, tile_numbers, tile_mine, tile_exploded, TILESIZE, tile_not_mine
+from settings import tile_unknown, tile_numbers, tile_mine, tile_exploded, tile_empty, TILESIZE, tile_not_mine
 
 class Board:
     """Manages the Minesweeper grid, mine placement, and digging."""
@@ -13,12 +13,24 @@ class Board:
         self.mines_placed = False  # Mines will be placed after first click
 
     def place_mines(self, safe_row, safe_col):
-        """Place mines avoiding the first clicked tile."""
+        """Place mines avoiding the first clicked tile AND all its neighbors.
+
+        Guaranteeing the clicked cell has 0 adjacent mines means it will always
+        be type "." after place_clues(), so dig() will always trigger the
+        recursive flood-reveal on the first click.
+        """
+        safe_cells = set()
+        for dr in range(-1, 2):
+            for dc in range(-1, 2):
+                r, c = safe_row + dr, safe_col + dc
+                if 0 <= r < self.rows and 0 <= c < self.cols:
+                    safe_cells.add((r, c))
+
         placed = 0
         while placed < self.amount_mines:
             r = random.randint(0, self.rows - 1)
             c = random.randint(0, self.cols - 1)
-            if (r == safe_row and c == safe_col) or self.board_list[r][c].type == "X":
+            if (r, c) in safe_cells or self.board_list[r][c].type == "X":
                 continue
             self.board_list[r][c].type = "X"
             self.board_list[r][c].image = tile_mine
@@ -59,12 +71,21 @@ class Board:
             tile.revealed = True
             return True
 
+        tile.image = tile_empty
         tile.revealed = True
         for dr in range(-1, 2):
             for dc in range(-1, 2):
                 r, c = row + dr, col + dc
                 if 0 <= r < self.rows and 0 <= c < self.cols and (r, c) not in self.dug:
                     self.dig(r, c)
+        return True
+
+    def check_win(self):
+        """Return True when every non-mine tile has been revealed."""
+        for row in self.board_list:
+            for tile in row:
+                if tile.type != "X" and not tile.revealed:
+                    return False
         return True
 
     def draw(self, screen):

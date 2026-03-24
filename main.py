@@ -1,57 +1,51 @@
 import sys
 import pygame
 
-from scripts.ui.home_menu import HomeMenu
-from scripts.ui.options   import Options
-from scripts.ui.shop  import Shop
-from scripts.ui.purchase import Purchase
+from scripts.ui.home_menu   import HomeMenu
+from scripts.ui.options     import Options
+from scripts.ui.shop        import Shop
+from scripts.ui.purchase    import Purchase
 from scripts.ui.game_screen import GameScreen
-from scripts.ui.ui_settings import * 
+from scripts.ui.ui_settings import *
 
-def main() :
-    
+
+def main():
+
     pygame.init()
     screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
     pygame.display.set_caption(WINDOW_TITLE)
     clock  = pygame.time.Clock()
 
-    # Menus
-    home     = HomeMenu(screen)
-    options  = Options(screen)
-    shop = Shop(screen)
-    purchase = Purchase(screen)
+    # Screens
+    home        = HomeMenu(screen)
+    options     = Options(screen)
+    shop        = Shop(screen)
+    purchase    = Purchase(screen)
     game_screen = None
-
 
     current = SCREEN_HOME
 
-    # Main Loop
+    # Main loop
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-            # Current screen events
             action = None
 
             if current == SCREEN_HOME:
                 action = home.handle_event(event)
-
             elif current == SCREEN_OPTIONS:
                 action = options.handle_event(event)
-
             elif current == SCREEN_SHOP:
                 action = shop.handle_event(event)
-
-            elif current == SCREEN_PURCHASE : 
+            elif current == SCREEN_PURCHASE:
                 action = purchase.handle_event(event)
-
             elif current == SCREEN_GAME and game_screen:
                 action = game_screen.handle_event(event)
 
-
-            # Transitions between screens
+            # Transitions
             if action == "options":
                 current = SCREEN_OPTIONS
 
@@ -68,13 +62,11 @@ def main() :
 
             elif isinstance(action, tuple) and action[0] == "new_game":
                 _, grid_size, num_bombs = action
-                print(f"[main] Nouvelle partie → grille {grid_size}×{grid_size}, {num_bombs} bombes")
+                difficulty  = home.btn_difficulty.current  # "easy" | "medium" | "hard"
+                game_screen = GameScreen(screen, grid_size, num_bombs, difficulty)
+                current     = SCREEN_GAME
 
-                game_screen = GameScreen(screen)
-                current = SCREEN_GAME
-
-
-        # Draw
+        # Render
         if current == SCREEN_HOME:
             home.draw()
         elif current == SCREEN_OPTIONS:
@@ -83,10 +75,8 @@ def main() :
             shop.draw()
         elif current == SCREEN_PURCHASE:
             purchase.draw()
-        elif current == SCREEN_GAME:
-            if game_screen:
-                game_screen.draw()
-
+        elif current == SCREEN_GAME and game_screen:
+            game_screen.draw()
 
         pygame.display.flip()
         clock.tick(FPS)
