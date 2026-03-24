@@ -23,6 +23,27 @@ HEIGHT = TILESIZE * COLS
 FPS = 60
 TITLE = "MicrotransacMines"
 
+DIFFICULTIES = {
+    "facile": {
+        "rows": 10,
+        "cols": 10,
+        "min_mines": 0,
+        "max_mines": 6
+    },
+    "normal": {
+        "rows": 15,
+        "cols": 15,
+        "min_mines": 7,
+        "max_mines": 12
+    },
+    "pay": {
+        "rows": 20,
+        "cols": 20,
+        "min_mines": 13,
+        "max_mines": 30
+    }
+}
+
 tile_numbers = []
 for i in range(1, 9):
     tile_numbers.append(pygame.transform.scale(pygame.image.load(os.path.join("assets\images", f"revealed_tile_{i}.png")), (TILESIZE, TILESIZE)))
