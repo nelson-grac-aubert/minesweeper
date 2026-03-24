@@ -2,7 +2,6 @@ import pygame
 pygame.init()
 import random
 from settings import DIFFICULTIES, TILESIZE, FPS, BGCOLOUR, WHITE, RED, TITLE
-from Tile_class import Tile
 from board import Board
 from settings import tile_not_mine
 
