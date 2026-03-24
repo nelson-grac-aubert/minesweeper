@@ -1,11 +1,4 @@
-import sys
-import os
 import pygame
-
-_TILES_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..', 'logic', 'tiles'))
-if _TILES_DIR not in sys.path:
-    sys.path.insert(0, _TILES_DIR)
 
 from scripts.logic.tiles.board import Board        
 from scripts.logic.tiles.settings import TILESIZE, tile_not_mine 
@@ -160,10 +153,10 @@ class GameScreen:
             msg_col = (166, 227, 161) if self.won else (243, 139, 168)
             big     = self._font_big.render(msg, True, msg_col)
             self.screen.blit(big, big.get_rect(
-                center=(WINDOW_W // 2, WINDOW_H // 2 - 40)))
+                center=(WINDOW_W // 2, WINDOW_H // 2 - 220)))
 
             sub = self._font_sub.render(
                 "Clique sur  ← Retour  pour revenir au menu",
                 True, TEXT_COLOR)
             self.screen.blit(sub, sub.get_rect(
-                center=(WINDOW_W // 2, WINDOW_H // 2 + 30)))
+                center=(WINDOW_W // 2, WINDOW_H // 2 - 180)))

@@ -1,6 +1,6 @@
 import random
-from Tile_class import Tile
-from settings import tile_unknown, tile_numbers, tile_mine, tile_exploded, tile_empty, TILESIZE, tile_not_mine
+from scripts.logic.tiles.Tile_class import Tile
+from scripts.logic.tiles.settings import tile_unknown, tile_numbers, tile_mine, tile_exploded, tile_empty, TILESIZE
 
 class Board:
     """Manages the Minesweeper grid, mine placement, and digging."""

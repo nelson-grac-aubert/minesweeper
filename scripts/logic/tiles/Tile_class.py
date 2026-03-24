@@ -7,7 +7,7 @@
 
 
 import pygame
-from settings import TILESIZE, tile_unknown, tile_flag, tile_question_mark
+from scripts.logic.tiles.settings import TILESIZE, tile_unknown, tile_flag, tile_question_mark
 
 class Tile:
     """Represents a single tile in the Minesweeper grid."""
