@@ -105,5 +105,7 @@ class HomeMenu:
         pygame.draw.rect(self.screen, OVERLAY_COLOR, card, border_radius=16)
 
     def play_pink_floyd(self) : 
+        """ Play Money by Pink Floyd on launch"""
+
         load_music("assets/music/money_pink_floyd.mp3")
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(-1)
