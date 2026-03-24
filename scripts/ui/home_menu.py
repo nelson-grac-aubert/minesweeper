@@ -37,13 +37,15 @@ class HomeMenu:
         self.btn_shop       = Button("assets/images/store.png",    center=(cx, 560))
 
         # Ads
-        raw_ad = load_image("assets/images/ad_placeholder.png")
-        ad_w, ad_h = raw_ad.get_size() 
-        self.ad_img = pygame.transform.scale(raw_ad, (ad_w, ad_h))
+        fruit_ad = load_image("assets/images/fruit_ad.png")
+        pokemon_ad = load_image("assets/images/pokemon_ad.png")
+        ad_w, ad_h = fruit_ad.get_size() 
+        self.fruit_img = pygame.transform.scale(fruit_ad, (ad_w * 1.3, ad_h * 1.3))
+        self.pokemon_img = pygame.transform.scale(pokemon_ad, (ad_w * 1.3, ad_h * 1.3))
 
         # Ads position
-        self.ad_left_rect  = self.ad_img.get_rect(midleft=(40, self.H // 2))
-        self.ad_right_rect = self.ad_img.get_rect(midright=(self.W - 40, self.H // 2))
+        self.ad_left_rect  = self.fruit_img.get_rect(midleft=(40, self.H // 2 + 100))
+        self.ad_right_rect = self.pokemon_img.get_rect(midright=(self.W - 40, self.H // 2 + 100))
 
 
     def handle_event(self, event: pygame.event.Event):
@@ -60,8 +62,11 @@ class HomeMenu:
         
         # Ad
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.ad_left_rect.collidepoint(event.pos) or self.ad_right_rect.collidepoint(event.pos):
-                webbrowser.open("https://google.com")
+            if self.ad_left_rect.collidepoint(event.pos) :
+                webbrowser.open("https://github.com/nelson-grac-aubert/fruit-slicer/releases")
+                return None
+            elif self.ad_right_rect.collidepoint(event.pos) :
+                webbrowser.open("https://github.com/ceciliaperana13/pokemon_")
                 return None
 
         # Click Options
@@ -82,8 +87,8 @@ class HomeMenu:
         self.btn_difficulty.draw(self.screen)
         self.btn_options.draw(self.screen)
         self.btn_shop.draw(self.screen)
-        self.screen.blit(self.ad_img, self.ad_left_rect)
-        self.screen.blit(self.ad_img, self.ad_right_rect)
+        self.screen.blit(self.fruit_img, self.ad_left_rect)
+        self.screen.blit(self.pokemon_img, self.ad_right_rect)
 
     def _draw_card(self) -> None:
         margin = 250
