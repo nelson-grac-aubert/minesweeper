@@ -1,5 +1,6 @@
 import pygame
 import random
+import webbrowser
 
 from scripts.ui.button            import Button
 from scripts.ui.difficulty_button import DifficultyButton
@@ -35,19 +36,39 @@ class HomeMenu:
         self.btn_options    = Button("assets/images/options.png",  center=(cx, 450))
         self.btn_shop       = Button("assets/images/store.png",    center=(cx, 560))
 
+        # Ads
+        raw_ad = load_image("assets/images/ad_placeholder.png")
+        ad_w, ad_h = raw_ad.get_size() 
+        self.ad_img = pygame.transform.scale(raw_ad, (ad_w, ad_h))
+
+        # Ads position
+        self.ad_left_rect  = self.ad_img.get_rect(midleft=(40, self.H // 2))
+        self.ad_right_rect = self.ad_img.get_rect(midright=(self.W - 40, self.H // 2))
+
+
     def handle_event(self, event: pygame.event.Event):
+        # Change difficulty
         if self.btn_difficulty.is_clicked(event):
             return None
 
+        # Start New Game
         if self.btn_new_game.is_clicked(event):
             diff   = self.btn_difficulty.current
             params = DIFFICULTY_PARAMS[diff]
             bombs  = random.randint(params["bombs_min"], params["bombs_max"])
             return ("new_game", params["grid"], bombs)
+        
+        # Ad
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self.ad_left_rect.collidepoint(event.pos) or self.ad_right_rect.collidepoint(event.pos):
+                webbrowser.open("https://google.com")
+                return None
 
+        # Click Options
         if self.btn_options.is_clicked(event):
             return "options"
 
+        # Click Shop
         if self.btn_shop.is_clicked(event):
             return "shop"
 
@@ -61,6 +82,8 @@ class HomeMenu:
         self.btn_difficulty.draw(self.screen)
         self.btn_options.draw(self.screen)
         self.btn_shop.draw(self.screen)
+        self.screen.blit(self.ad_img, self.ad_left_rect)
+        self.screen.blit(self.ad_img, self.ad_right_rect)
 
     def _draw_card(self) -> None:
         margin = 250
