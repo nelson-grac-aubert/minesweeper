@@ -4,6 +4,7 @@ import webbrowser
 
 from scripts.ui.button            import Button
 from scripts.ui.difficulty_button import DifficultyButton
+from scripts.logic.utils.assets_imports import load_music
 
 BG_COLOR      = (30,  30,  46)
 OVERLAY_COLOR = (49,  50,  68)
@@ -22,6 +23,10 @@ class HomeMenu:
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
         cx = self.W // 2
+
+        # Music
+
+        self.play_pink_floyd()
 
         # Title
         from scripts.logic.utils.assets_imports import load_image
@@ -98,3 +103,7 @@ class HomeMenu:
         margin = 250
         card = pygame.Rect(margin, 220, self.W - 2 * margin, 430)
         pygame.draw.rect(self.screen, OVERLAY_COLOR, card, border_radius=16)
+
+    def play_pink_floyd(self) : 
+        load_music("assets/music/money_pink_floyd.mp3")
+        pygame.mixer.music.play()
