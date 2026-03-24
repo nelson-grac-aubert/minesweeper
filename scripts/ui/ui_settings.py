@@ -1,0 +1,7 @@
+# UI Menu colors
+
+BG_COLOR      = (30,  30,  46)
+OVERLAY_COLOR = (49,  50,  68)
+TEXT_COLOR  = (205, 214, 244)
+ACCENT_COLOR = (137, 180, 250)
+BACK_COLOR  = (49,  50,  68)

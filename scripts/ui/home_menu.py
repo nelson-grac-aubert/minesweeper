@@ -5,9 +5,7 @@ import webbrowser
 from scripts.ui.button            import Button
 from scripts.ui.difficulty_button import DifficultyButton
 from scripts.logic.utils.assets_imports import load_music
-
-BG_COLOR      = (30,  30,  46)
-OVERLAY_COLOR = (49,  50,  68)
+from scripts.ui.ui_settings import *
 
 DIFFICULTY_PARAMS = {
     "easy":   {"grid": 8,  "bombs_min": 15,  "bombs_max": 20},

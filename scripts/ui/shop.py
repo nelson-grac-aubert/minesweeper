@@ -2,12 +2,7 @@ import pygame
 
 from scripts.logic.utils.assets_imports import load_image
 from scripts.ui.button import Button
-
-BG_COLOR     = (30,  30,  46)
-TEXT_COLOR   = (205, 214, 244)
-ACCENT_COLOR = (166, 227, 161) 
-BACK_COLOR   = (49,  50,  68)
-
+from scripts.ui.ui_settings import *
 
 class Shop:
 

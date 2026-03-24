@@ -1,11 +1,7 @@
 import pygame
 
 from scripts.logic.utils.assets_imports import load_image, load_sound
-
-BG_COLOR    = (30,  30,  46)
-ACCENT_COLOR = (137, 180, 250)
-BACK_COLOR  = (49,  50,  68)
-TEXT_COLOR  = (205, 214, 244)
+from scripts.ui.ui_settings import *
 
 class Purchase:
 
