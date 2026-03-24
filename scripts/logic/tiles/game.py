@@ -1,41 +1,34 @@
 import pygame
 pygame.init()
 import random
-from settings import *
+from settings import DIFFICULTIES, TILESIZE, FPS, BGCOLOUR, WHITE, RED, TITLE, tile_not_mine
 from board import Board
 from Tile_class import Tile
 
-MAX_TIME = 120  # seconds countdown
-
 class Game:
     def __init__(self):
-        self.difficulty = "normal"
+        self.difficulty = "normal"  # default
         self.clock = pygame.time.Clock()
         self.playing = False
         self.win = False
 
-        # dynamic board dimensions
-        self.rows = DIFFICULTIES[self.difficulty]["rows"]
-        self.cols = DIFFICULTIES[self.difficulty]["cols"]
-        self.amount_mines = random.randint(
-            DIFFICULTIES[self.difficulty]["min_mines"],
-            DIFFICULTIES[self.difficulty]["max_mines"]
-        )
+        self.set_difficulty(self.difficulty)
 
+    def set_difficulty(self, difficulty):
+        """Set board size, mines, and max_time based on difficulty"""
+        self.difficulty = difficulty
+        settings = DIFFICULTIES[difficulty]
+        self.rows = settings["rows"]
+        self.cols = settings["cols"]
+        self.amount_mines = random.randint(settings["min_mines"], settings["max_mines"])
+        self.max_time = settings.get("time_limit", 120)  # seconds
         self.width = TILESIZE * self.cols
         self.height = TILESIZE * self.rows
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption(TITLE)
 
     def new(self):
-        settings = DIFFICULTIES[self.difficulty]
-        self.rows = settings["rows"]
-        self.cols = settings["cols"]
-        self.amount_mines = random.randint(settings["min_mines"], settings["max_mines"])
-        self.width = TILESIZE * self.cols
-        self.height = TILESIZE * self.rows
-        self.screen = pygame.display.set_mode((self.width, self.height))
-
+        self.set_difficulty(self.difficulty)
         self.board = Board(self.rows, self.cols, self.amount_mines)
         self.board.display_board()
         self.start_time = pygame.time.get_ticks()
@@ -48,11 +41,11 @@ class Game:
             self.events()
             self.draw()
 
-            # Countdown logic
+            # Countdown timer
             elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000
-            remaining_time = MAX_TIME - elapsed_time
+            remaining_time = self.max_time - elapsed_time
             if remaining_time <= 0:
-                self.playing = False  # game over by time
+                self.playing = False  # time over → game over
 
             # Check win
             if self.check_win():
@@ -62,7 +55,6 @@ class Game:
                     for tile in row:
                         if not tile.revealed:
                             tile.marker = "flag"
-
         else:
             self.end_screen()
 
@@ -70,14 +62,12 @@ class Game:
         self.screen.fill(BGCOLOUR)
         self.board.draw(self.screen)
 
-        # Countdown Timer
         font = pygame.font.SysFont("Arial", 24)
         elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000
-        remaining_time = max(0, MAX_TIME - elapsed_time)
+        remaining_time = max(0, self.max_time - elapsed_time)
         timer_text = font.render(f"Time: {remaining_time}s", True, WHITE)
         self.screen.blit(timer_text, (10, 10))
 
-        # Difficulty display
         diff_text = font.render(f"Mode: {self.difficulty}", True, WHITE)
         self.screen.blit(diff_text, (10, 40))
 
@@ -102,7 +92,6 @@ class Game:
                 # LEFT CLICK
                 if event.button == 1 and tile.marker == "none":
                     if not self.board.dig(mx, my):
-                        # Explosion logic
                         for row in self.board.board_list:
                             for t in row:
                                 if t.marker == "flag" and t.type != "X":
@@ -117,16 +106,16 @@ class Game:
                 elif event.button == 3 and not tile.revealed:
                     tile.toggle_marker()
 
-            # Keyboard difficulty (1,2,3)
+            # Keyboard difficulty selection
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    self.difficulty = "easy"
+                    self.set_difficulty("easy")
                     self.new()
                 elif event.key == pygame.K_2:
-                    self.difficulty = "normal"
+                    self.set_difficulty("normal")
                     self.new()
                 elif event.key == pygame.K_3:
-                    self.difficulty = "payhard"
+                    self.set_difficulty("pay")  # hard mode renamed "pay"
                     self.new()
 
     def check_win(self):
@@ -144,7 +133,7 @@ class Game:
         pygame.time.wait(2000)
 
 
-# Run game
+# Run the game
 if __name__ == "__main__":
     game = Game()
     while True:
