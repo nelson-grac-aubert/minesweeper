@@ -7,7 +7,7 @@ from scripts.logic.utils.assets_imports import load_image
 
 BG_COLOR     = (30,  30,  46)
 TEXT_COLOR   = (205, 214, 244)
-ACCENT_COLOR = (166, 227, 161)   # vert menthe pour la shop
+ACCENT_COLOR = (166, 227, 161) 
 BACK_COLOR   = (49,  50,  68)
 
 
@@ -35,8 +35,6 @@ class Shop:
             back_w, back_h
         )
 
-    # ─────────────────────────────────────────────────────────────────────────
-
     def handle_event(self, event: pygame.event.Event):
         if (
             event.type == pygame.MOUSEBUTTONDOWN
@@ -54,7 +52,7 @@ class Shop:
         msg = self.font_body.render("(à venir)", True, TEXT_COLOR)
         self.screen.blit(msg, msg.get_rect(center=(self.W // 2, 340)))
 
-        # Bouton retour
+        # Return button
         hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
         color = ACCENT_COLOR if hover else BACK_COLOR
         pygame.draw.rect(self.screen, color, self.back_rect, border_radius=10)

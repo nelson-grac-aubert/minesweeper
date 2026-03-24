@@ -59,7 +59,7 @@ class Options:
         msg = self.font_body.render("(à venir)", True, TEXT_COLOR)
         self.screen.blit(msg, msg.get_rect(center=(self.W // 2, self.H // 2)))
 
-        # Bouton retour
+        # Return button
         hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
         color = ACCENT_COLOR if hover else BACK_COLOR
         pygame.draw.rect(self.screen, color, self.back_rect, border_radius=10)

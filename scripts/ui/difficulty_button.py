@@ -11,7 +11,7 @@ DIFFICULTIES = ["easy", "medium", "hard"]
 
 
 class DifficultyButton(Button):
-    """Cycle easy → medium → hard au clic gauche."""
+    """Cycle easy → medium → hard on left click"""
 
     def __init__(self, center: tuple[int, int]):
         self._index  = 0
