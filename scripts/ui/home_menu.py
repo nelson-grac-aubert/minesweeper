@@ -9,9 +9,9 @@ BG_COLOR      = (30,  30,  46)
 OVERLAY_COLOR = (49,  50,  68)
 
 DIFFICULTY_PARAMS = {
-    "easy":   {"grid": 8,  "bombs_min": 5,  "bombs_max": 7},
-    "medium": {"grid": 10, "bombs_min": 7,  "bombs_max": 9},
-    "hard":   {"grid": 12, "bombs_min": 30, "bombs_max": 40},
+    "easy":   {"grid": 8,  "bombs_min": 15,  "bombs_max": 20},
+    "medium": {"grid": 10, "bombs_min": 20,  "bombs_max": 30},
+    "hard":   {"grid": 12, "bombs_min": 100, "bombs_max": 120},
 }
 
 
