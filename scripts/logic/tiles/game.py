@@ -41,37 +41,41 @@ class Game:
                 pygame.quit()
                 quit(0)
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 mx, my = pygame.mouse.get_pos()
                 mx //= TILESIZE
                 my //= TILESIZE
 
+                tile = self.board.board_list[mx][my]
+
+                # left clic
                 if event.button == 1:
-                    if not self.board.board_list[mx][my].flagged:
-                        # dig and check if exploded
+                    if tile.marker == "none" and not tile.revealed:
                         if not self.board.dig(mx, my):
-                            # explode
+                            # Explosion
                             for row in self.board.board_list:
-                                for tile in row:
-                                    if tile.flagged and tile.type != "X":
-                                        tile.flagged = False
-                                        tile.revealed = True
-                                        tile.image = tile_not_mine
-                                    elif tile.type == "X":
-                                        tile.revealed = True
+                                for t in row:
+                                    if t.marker == "flag" and t.type != "X":
+                                        t.marker = "none"
+                                        t.revealed = True
+                                        t.image = tile_not_mine
+                                    elif t.type == "X":
+                                        t.revealed = True
                             self.playing = False
 
-                if event.button == 3:
-                    if not self.board.board_list[mx][my].revealed:
-                        self.board.board_list[mx][my].flagged = not self.board.board_list[mx][my].flagged
+                # rigth clic
+                elif event.button == 3:
+                    if not tile.revealed:
+                        tile.toggle_marker()
 
+                # CHECK WIN
                 if self.check_win():
                     self.win = True
                     self.playing = False
                     for row in self.board.board_list:
-                        for tile in row:
-                            if not tile.revealed:
-                                tile.flagged = True
+                        for t in row:
+                            if not t.revealed:
+                                t.marker = "flag"
 
     def end_screen(self):
         while True:
