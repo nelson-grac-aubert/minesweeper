@@ -8,6 +8,7 @@ sys.path.insert(0, ROOT)
 from scripts.ui.home_menu import HomeMenu
 from scripts.ui.options   import Options
 from scripts.ui.shop  import Shop
+from scripts.ui.purchase import Purchase
 
 
 # CONSTANTS
@@ -20,6 +21,7 @@ WINDOW_TITLE       = "MICROTRANSACMINE"
 SCREEN_HOME = "home"
 SCREEN_OPTIONS  = "options"
 SCREEN_SHOP = "shop"
+SCREEN_PURCHASE = "purchase"
 SCREEN_GAME     = "game"     # Adrien et Cécilia
 
 
@@ -33,6 +35,7 @@ def main() -> None:
     home     = HomeMenu(screen)
     options  = Options(screen)
     shop = Shop(screen)
+    purchase = Purchase(screen)
 
     current = SCREEN_HOME
 
@@ -55,6 +58,9 @@ def main() -> None:
             elif current == SCREEN_SHOP:
                 action = shop.handle_event(event)
 
+            elif current == SCREEN_PURCHASE : 
+                action = purchase.handle_event(event)
+
             # Transitions between screens
             if action == "options":
                 current = SCREEN_OPTIONS
@@ -65,9 +71,10 @@ def main() -> None:
             elif action == "home":
                 current = SCREEN_HOME
 
-            elif action == "remove_ads":
+            elif action == "purchase":
+                purchase.play_coo()
                 home.ads_removed = True
-                current = SCREEN_SHOP
+                current = SCREEN_PURCHASE
 
             elif isinstance(action, tuple) and action[0] == "new_game":
                 _, grid_size, num_bombs = action
@@ -83,6 +90,8 @@ def main() -> None:
             options.draw()
         elif current == SCREEN_SHOP:
             shop.draw()
+        elif current == SCREEN_PURCHASE:
+            purchase.draw()
 
         pygame.display.flip()
         clock.tick(FPS)

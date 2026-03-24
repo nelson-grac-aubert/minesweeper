@@ -1,7 +1,3 @@
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "logic", "utils"))
 from scripts.logic.utils.assets_imports import load_image
 from scripts.ui.button import Button
 

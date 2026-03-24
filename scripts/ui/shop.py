@@ -1,8 +1,5 @@
 import pygame
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "logic", "utils"))
 from scripts.logic.utils.assets_imports import load_image
 from scripts.ui.button import Button
 
@@ -61,7 +58,7 @@ class Shop:
                 self.ads_removed = True
                 self.btn_remove_ads.image = self.img_ads_removed
                 self.btn_remove_ads.rect  = self.img_ads_removed.get_rect(center=(500, 270))
-                return "remove_ads"
+                return "purchase"
         return None
 
     def draw(self) -> None:

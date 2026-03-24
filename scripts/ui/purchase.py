@@ -1,14 +1,13 @@
 import pygame
 
-from scripts.logic.utils.assets_imports import load_image
+from scripts.logic.utils.assets_imports import load_image, load_sound
 
 BG_COLOR    = (30,  30,  46)
-TEXT_COLOR  = (205, 214, 244)
 ACCENT_COLOR = (137, 180, 250)
 BACK_COLOR  = (49,  50,  68)
+TEXT_COLOR  = (205, 214, 244)
 
-
-class Options:
+class Purchase:
 
     W, H = 1000, 680
 
@@ -16,11 +15,17 @@ class Options:
         self.screen = screen
         self.font_back  = pygame.font.SysFont("monospace", 20, bold=True)
 
-        # Icon options
-        raw = load_image("assets/images/options.png")
+        # Thanks message
+        raw = load_image("assets/images/thanks.png")
         w, h = raw.get_size()
-        self.options_img  = pygame.transform.scale(raw, (w * 3, h * 3))
-        self.options_rect = self.options_img.get_rect(center=(self.W // 2, 100))
+        self.thanks_img  = pygame.transform.scale(raw, (w * 3, h * 3))
+        self.thanks_rect = self.thanks_img.get_rect(center=(self.W // 2, 100))
+
+        # Pigeon Sprite
+        raw = load_image("assets/images/pigeon.png")
+        w, h = raw.get_size()
+        self.pigeon_img  = pygame.transform.scale(raw, (w * 5, h * 5))
+        self.pigeon_rect = self.pigeon_img.get_rect(center=(500, 340))
 
         # Return Button
         back_w, back_h = 160, 50
@@ -37,13 +42,16 @@ class Options:
             and self.back_rect.collidepoint(event.pos)
         ):
             return "home"
+        
         return None
 
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
 
         # Title 
-        self.screen.blit(self.options_img, self.options_rect)
+        self.screen.blit(self.thanks_img, self.thanks_rect)
+        # Pigeon
+        self.screen.blit(self.pigeon_img, self.pigeon_rect)
 
         # Return button
         hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
@@ -51,3 +59,8 @@ class Options:
         pygame.draw.rect(self.screen, color, self.back_rect, border_radius=10)
         label = self.font_back.render("← Retour", True, BG_COLOR if hover else TEXT_COLOR)
         self.screen.blit(label, label.get_rect(center=self.back_rect.center))
+
+    def play_coo(self) : 
+        """ Play a pigeon sound """
+        coo_coo = load_sound("assets/sounds/coo_coo.mp3")
+        coo_coo.play() 
