@@ -1,13 +1,9 @@
 import pygame
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "logic", "utils"))
 from scripts.logic.utils.assets_imports import load_image
 
-
 class Button:
-    """Bouton cliquable à partir d'une image PNG scalée."""
+    """Clickable button from a scale PNG image"""
 
     def __init__(self, image_path: str, center: tuple[int, int], scale = 3):
         raw = load_image(image_path)

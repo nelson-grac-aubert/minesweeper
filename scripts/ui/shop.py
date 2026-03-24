@@ -1,27 +1,26 @@
 import pygame
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "logic", "utils"))
 from scripts.logic.utils.assets_imports import load_image
 from scripts.ui.button import Button
-
-BG_COLOR     = (30,  30,  46)
-TEXT_COLOR   = (205, 214, 244)
-ACCENT_COLOR = (166, 227, 161) 
-BACK_COLOR   = (49,  50,  68)
-
+from scripts.ui.ui_settings import *
 
 class Shop:
 
     W, H = 1000, 680
 
     def __init__(self, screen: pygame.Surface):
+
+        self.ads_removed = False
         self.screen = screen
         # Back button font
         self.font_back_button  = pygame.font.SysFont("monospace", 20, bold=True)
         # Button remove ads
         self.btn_remove_ads   = Button("assets/images/remove_ads.png", center=(500, 270))
+        # Button ads removed
+        ads_removed_image = load_image("assets/images/ads_removed.png")
+        wi, he = ads_removed_image.get_size()
+        self.img_ads_removed  = pygame.transform.scale(ads_removed_image, (wi * 3, he * 3))
+
         # Button buy flag skin
         self.flag_button_scale = 1
         self.flag_buttons_y = 450
@@ -30,9 +29,9 @@ class Shop:
         self.btn_gold_flag = Button("assets/images/shop_flag_gold.png", (750, self.flag_buttons_y), self.flag_button_scale)
 
         # Icon shop
-        raw = load_image("assets/images/store.png")
-        w, h = raw.get_size()
-        self.store_img  = pygame.transform.scale(raw, (w * 3, h * 3))
+        store_title = load_image("assets/images/store.png")
+        w, h = store_title.get_size()
+        self.store_img  = pygame.transform.scale(store_title, (w * 3, h * 3))
         self.store_rect = self.store_img.get_rect(center=(self.W // 2, 100))
 
         # Return Button
@@ -44,12 +43,17 @@ class Shop:
         )
 
     def handle_event(self, event: pygame.event.Event):
-        if (
-            event.type == pygame.MOUSEBUTTONDOWN
-            and event.button == 1
-            and self.back_rect.collidepoint(event.pos)
-        ):
-            return "home"
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            # Button back to main menu
+            if self.back_rect.collidepoint(event.pos):
+                return "home"
+            
+            # Button remove adds
+            if not self.ads_removed and self.btn_remove_ads.rect.collidepoint(event.pos):
+                self.ads_removed = True
+                self.btn_remove_ads.image = self.img_ads_removed
+                self.btn_remove_ads.rect  = self.img_ads_removed.get_rect(center=(500, 270))
+                return "ads purchased"
         return None
 
     def draw(self) -> None:

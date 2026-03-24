@@ -1,29 +1,14 @@
 import sys
-import os
 import pygame
-
-ROOT = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, ROOT)
 
 from scripts.ui.home_menu import HomeMenu
 from scripts.ui.options   import Options
 from scripts.ui.shop  import Shop
+from scripts.ui.purchase import Purchase
+from scripts.ui.ui_settings import * 
 
-
-# CONSTANTS
-WINDOW_W, WINDOW_H = 1000, 680
-FPS                = 60
-WINDOW_TITLE       = "MICROTRANSACMINE"
-
-
-# SCREENS
-SCREEN_HOME = "home"
-SCREEN_OPTIONS  = "options"
-SCREEN_shop = "shop"
-SCREEN_GAME     = "game"     # Adrien et Cécilia
-
-
-def main() -> None:
+def main() :
+    
     pygame.init()
     screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
     pygame.display.set_caption(WINDOW_TITLE)
@@ -33,6 +18,7 @@ def main() -> None:
     home     = HomeMenu(screen)
     options  = Options(screen)
     shop = Shop(screen)
+    purchase = Purchase(screen)
 
     current = SCREEN_HOME
 
@@ -52,18 +38,26 @@ def main() -> None:
             elif current == SCREEN_OPTIONS:
                 action = options.handle_event(event)
 
-            elif current == SCREEN_shop:
+            elif current == SCREEN_SHOP:
                 action = shop.handle_event(event)
+
+            elif current == SCREEN_PURCHASE : 
+                action = purchase.handle_event(event)
 
             # Transitions between screens
             if action == "options":
                 current = SCREEN_OPTIONS
 
             elif action == "shop":
-                current = SCREEN_shop
+                current = SCREEN_SHOP
 
             elif action == "home":
                 current = SCREEN_HOME
+
+            elif action == "ads purchased":
+                purchase.play_coo()
+                home.ads_removed = True
+                current = SCREEN_PURCHASE
 
             elif isinstance(action, tuple) and action[0] == "new_game":
                 _, grid_size, num_bombs = action
@@ -77,8 +71,10 @@ def main() -> None:
             home.draw()
         elif current == SCREEN_OPTIONS:
             options.draw()
-        elif current == SCREEN_shop:
+        elif current == SCREEN_SHOP:
             shop.draw()
+        elif current == SCREEN_PURCHASE:
+            purchase.draw()
 
         pygame.display.flip()
         clock.tick(FPS)

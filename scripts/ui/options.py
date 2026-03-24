@@ -1,31 +1,14 @@
 import pygame
-import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "logic", "utils"))
 from scripts.logic.utils.assets_imports import load_image
-
-BG_COLOR    = (30,  30,  46)
-TEXT_COLOR  = (205, 214, 244)
-ACCENT_COLOR = (137, 180, 250)
-BACK_COLOR  = (49,  50,  68)
-
+from scripts.ui.ui_settings import *
 
 class Options:
-    """
-    Menu Options — vide pour l'instant.
-
-    handle_event() renvoie :
-        "home"  → retourner au menu principal
-        None    → rien
-    """
 
     W, H = 1000, 680
 
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
-        self.font_title = pygame.font.SysFont("monospace", 36, bold=True)
-        self.font_body  = pygame.font.SysFont("monospace", 18)
         self.font_back  = pygame.font.SysFont("monospace", 20, bold=True)
 
         # Icon options

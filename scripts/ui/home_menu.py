@@ -4,9 +4,8 @@ import webbrowser
 
 from scripts.ui.button            import Button
 from scripts.ui.difficulty_button import DifficultyButton
-
-BG_COLOR      = (30,  30,  46)
-OVERLAY_COLOR = (49,  50,  68)
+from scripts.logic.utils.assets_imports import load_music
+from scripts.ui.ui_settings import *
 
 DIFFICULTY_PARAMS = {
     "easy":   {"grid": 8,  "bombs_min": 15,  "bombs_max": 20},
@@ -23,6 +22,10 @@ class HomeMenu:
         self.screen = screen
         cx = self.W // 2
 
+        # Music
+
+        self.play_pink_floyd()
+
         # Title
         from scripts.logic.utils.assets_imports import load_image
         raw_title = load_image("assets/images/title.png")
@@ -37,6 +40,7 @@ class HomeMenu:
         self.btn_shop       = Button("assets/images/store.png",    center=(cx, 560))
 
         # Ads
+        self.ads_removed = False
         fruit_ad = load_image("assets/images/fruit_ad.png")
         pokemon_ad = load_image("assets/images/pokemon_ad.png")
         ad_w, ad_h = fruit_ad.get_size() 
@@ -61,11 +65,11 @@ class HomeMenu:
             return ("new_game", params["grid"], bombs)
         
         # Ad
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.ad_left_rect.collidepoint(event.pos) :
+        if not self.ads_removed and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self.ad_left_rect.collidepoint(event.pos):
                 webbrowser.open("https://github.com/nelson-grac-aubert/fruit-slicer/releases")
                 return None
-            elif self.ad_right_rect.collidepoint(event.pos) :
+            elif self.ad_right_rect.collidepoint(event.pos):
                 webbrowser.open("https://github.com/ceciliaperana13/pokemon_")
                 return None
 
@@ -87,10 +91,19 @@ class HomeMenu:
         self.btn_difficulty.draw(self.screen)
         self.btn_options.draw(self.screen)
         self.btn_shop.draw(self.screen)
-        self.screen.blit(self.fruit_img, self.ad_left_rect)
-        self.screen.blit(self.pokemon_img, self.ad_right_rect)
+
+        # Ads
+        if not self.ads_removed:
+            self.screen.blit(self.fruit_img, self.ad_left_rect)
+            self.screen.blit(self.pokemon_img, self.ad_right_rect)
 
     def _draw_card(self) -> None:
         margin = 250
         card = pygame.Rect(margin, 220, self.W - 2 * margin, 430)
         pygame.draw.rect(self.screen, OVERLAY_COLOR, card, border_radius=16)
+
+    def play_pink_floyd(self) : 
+        """ Play Money by Pink Floyd on launch"""
+
+        load_music("assets/music/money_pink_floyd.mp3")
+        pygame.mixer.music.play(-1)
