@@ -53,7 +53,7 @@ class Shop:
                 self.ads_removed = True
                 self.btn_remove_ads.image = self.img_ads_removed
                 self.btn_remove_ads.rect  = self.img_ads_removed.get_rect(center=(500, 270))
-                return "purchase"
+                return "ads purchased"
         return None
 
     def draw(self) -> None:
