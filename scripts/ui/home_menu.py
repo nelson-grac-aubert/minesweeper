@@ -16,11 +16,9 @@ DIFFICULTY_PARAMS = {
 
 class HomeMenu:
 
-    W, H = 1000, 680
-
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
-        cx = self.W // 2
+        screen_center_x = WINDOW_W // 2
 
         # Music
 
@@ -31,13 +29,13 @@ class HomeMenu:
         raw_title = load_image("assets/images/title.png")
         tw, th    = raw_title.get_size()
         self.title_img  = pygame.transform.scale(raw_title, (tw * 5, th * 5))
-        self.title_rect = self.title_img.get_rect(center=(cx, 100))
+        self.title_rect = self.title_img.get_rect(center=(screen_center_x, 100))
 
         # Buttons
-        self.btn_new_game   = Button("assets/images/new_game.png", center=(cx, 270))
-        self.btn_difficulty = DifficultyButton(center=(cx, 360))
-        self.btn_options    = Button("assets/images/options.png",  center=(cx, 450))
-        self.btn_shop       = Button("assets/images/store.png",    center=(cx, 560))
+        self.btn_new_game   = Button("assets/images/new_game.png", center=(screen_center_x, 270))
+        self.btn_difficulty = DifficultyButton(center=(screen_center_x, 360))
+        self.btn_options    = Button("assets/images/options.png",  center=(screen_center_x, 450))
+        self.btn_shop       = Button("assets/images/store.png",    center=(screen_center_x, 560))
 
         # Ads
         self.ads_removed = False
@@ -48,8 +46,8 @@ class HomeMenu:
         self.pokemon_img = pygame.transform.scale(pokemon_ad, (ad_w * 1.3, ad_h * 1.3))
 
         # Ads position
-        self.ad_left_rect  = self.fruit_img.get_rect(midleft=(40, self.H // 2 + 100))
-        self.ad_right_rect = self.pokemon_img.get_rect(midright=(self.W - 40, self.H // 2 + 100))
+        self.ad_left_rect  = self.fruit_img.get_rect(midleft=(40, WINDOW_H // 2 + 100))
+        self.ad_right_rect = self.pokemon_img.get_rect(midright=(WINDOW_W - 40, WINDOW_H // 2 + 100))
 
 
     def handle_event(self, event: pygame.event.Event):
@@ -99,7 +97,7 @@ class HomeMenu:
 
     def _draw_card(self) -> None:
         margin = 250
-        card = pygame.Rect(margin, 220, self.W - 2 * margin, 430)
+        card = pygame.Rect(margin, 220, WINDOW_W - 2 * margin, 430)
         pygame.draw.rect(self.screen, OVERLAY_COLOR, card, border_radius=16)
 
     def play_pink_floyd(self) : 

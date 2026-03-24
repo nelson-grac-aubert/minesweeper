@@ -5,8 +5,6 @@ from scripts.ui.ui_settings import *
 
 class Purchase:
 
-    W, H = 1000, 680
-
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
         self.font_back  = pygame.font.SysFont("monospace", 20, bold=True)
@@ -15,7 +13,7 @@ class Purchase:
         raw = load_image("assets/images/thanks.png")
         w, h = raw.get_size()
         self.thanks_img  = pygame.transform.scale(raw, (w * 3, h * 3))
-        self.thanks_rect = self.thanks_img.get_rect(center=(self.W // 2, 100))
+        self.thanks_rect = self.thanks_img.get_rect(center=(WINDOW_W // 2, 100))
 
         # Pigeon Sprite
         raw = load_image("assets/images/pigeon.png")
@@ -26,8 +24,8 @@ class Purchase:
         # Return Button
         back_w, back_h = 160, 50
         self.back_rect = pygame.Rect(
-            (self.W - back_w) // 2,
-            self.H - back_h - 40,
+            (WINDOW_W - back_w) // 2,
+            WINDOW_H - back_h - 40,
             back_w, back_h
         )
 

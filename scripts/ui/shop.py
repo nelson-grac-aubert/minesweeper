@@ -6,8 +6,6 @@ from scripts.ui.ui_settings import *
 
 class Shop:
 
-    W, H = 1000, 680
-
     def __init__(self, screen: pygame.Surface):
 
         self.ads_removed = False
@@ -32,13 +30,13 @@ class Shop:
         store_title = load_image("assets/images/store.png")
         w, h = store_title.get_size()
         self.store_img  = pygame.transform.scale(store_title, (w * 3, h * 3))
-        self.store_rect = self.store_img.get_rect(center=(self.W // 2, 100))
+        self.store_rect = self.store_img.get_rect(center=(WINDOW_W // 2, 100))
 
         # Return Button
         back_w, back_h = 160, 50
         self.back_rect = pygame.Rect(
-            (self.W - back_w) // 2,
-            self.H - back_h - 40,
+            (WINDOW_W - back_w) // 2,
+            WINDOW_H - back_h - 40,
             back_w, back_h
         )
 

@@ -5,6 +5,7 @@ from scripts.ui.home_menu import HomeMenu
 from scripts.ui.options   import Options
 from scripts.ui.shop  import Shop
 from scripts.ui.purchase import Purchase
+from scripts.ui.game_screen import GameScreen
 from scripts.ui.ui_settings import * 
 
 def main() :
@@ -19,6 +20,8 @@ def main() :
     options  = Options(screen)
     shop = Shop(screen)
     purchase = Purchase(screen)
+    game_screen = None
+
 
     current = SCREEN_HOME
 
@@ -44,6 +47,10 @@ def main() :
             elif current == SCREEN_PURCHASE : 
                 action = purchase.handle_event(event)
 
+            elif current == SCREEN_GAME and game_screen:
+                action = game_screen.handle_event(event)
+
+
             # Transitions between screens
             if action == "options":
                 current = SCREEN_OPTIONS
@@ -62,9 +69,10 @@ def main() :
             elif isinstance(action, tuple) and action[0] == "new_game":
                 _, grid_size, num_bombs = action
                 print(f"[main] Nouvelle partie → grille {grid_size}×{grid_size}, {num_bombs} bombes")
-                # TODO : instantiate game screen here
-                # current = SCREEN_GAME
-                # game = Game(screen, grid_size, num_bombs)
+
+                game_screen = GameScreen(screen)
+                current = SCREEN_GAME
+
 
         # Draw
         if current == SCREEN_HOME:
@@ -75,6 +83,10 @@ def main() :
             shop.draw()
         elif current == SCREEN_PURCHASE:
             purchase.draw()
+        elif current == SCREEN_GAME:
+            if game_screen:
+                game_screen.draw()
+
 
         pygame.display.flip()
         clock.tick(FPS)

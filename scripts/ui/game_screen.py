@@ -3,17 +3,17 @@ import pygame
 from scripts.logic.utils.assets_imports import load_image
 from scripts.ui.ui_settings import *
 
-class Options:
+class GameScreen:
 
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
-        self.font_back  = pygame.font.SysFont("monospace", 20, bold=True)
+        self.font_back = pygame.font.SysFont("monospace", 20, bold=True)
 
-        # Icon options
-        raw = load_image("assets/images/options.png")
+        # Title icon
+        raw = load_image("assets/images/title.png")
         w, h = raw.get_size()
-        self.options_img  = pygame.transform.scale(raw, (w * 3, h * 3))
-        self.options_rect = self.options_img.get_rect(center=(WINDOW_W // 2, 100))
+        self.title_img = pygame.transform.scale(raw, (w * 3, h * 3))
+        self.title_rect = self.title_img.get_rect(center=(WINDOW_W // 2, 50))
 
         # Return Button
         back_w, back_h = 160, 50
@@ -35,8 +35,8 @@ class Options:
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
 
-        # Title 
-        self.screen.blit(self.options_img, self.options_rect)
+        # Title
+        self.screen.blit(self.title_img, self.title_rect)
 
         # Return button
         hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
