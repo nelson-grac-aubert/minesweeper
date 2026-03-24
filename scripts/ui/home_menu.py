@@ -27,7 +27,7 @@ class HomeMenu:
         from scripts.logic.utils.assets_imports import load_image
         raw_title = load_image("assets/images/title.png")
         tw, th    = raw_title.get_size()
-        self.title_img  = pygame.transform.scale(raw_title, (tw * 4, th * 4))
+        self.title_img  = pygame.transform.scale(raw_title, (tw * 5, th * 5))
         self.title_rect = self.title_img.get_rect(center=(cx, 100))
 
         # Buttons
