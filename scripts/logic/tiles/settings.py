@@ -25,10 +25,10 @@ TITLE = "MicrotransacMines"
 
 DIFFICULTIES = {
     "facile": {
-        "rows": 10,
-        "cols": 10,
-        "min_mines": 0,
-        "max_mines": 6,
+        "rows": 9,
+        "cols": 9,
+        "min_mines": 5,
+        "max_mines": 10,
         "time_limit": 90
     },
     "normal": {

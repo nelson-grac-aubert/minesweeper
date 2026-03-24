@@ -7,7 +7,7 @@ from Tile_class import Tile
 
 class Game:
     def __init__(self):
-        self.difficulty = "normal"  # default
+        self.difficulty = "facile"  # default
         self.clock = pygame.time.Clock()
         self.playing = False
         self.win = False
