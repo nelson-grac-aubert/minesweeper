@@ -1,7 +1,14 @@
+import sys
+import os
 import pygame
 
+_TILES_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', 'logic', 'tiles'))
+if _TILES_DIR not in sys.path:
+    sys.path.insert(0, _TILES_DIR)
+
 from scripts.logic.tiles.board import Board        
-from scripts.logic.tiles.settings import TILESIZE, tile_not_mine 
+from scripts.logic.tiles.settings import TILESIZE, tile_not_mine, DIFFICULTIES
 
 from scripts.ui.ui_settings import (
     BG_COLOR, OVERLAY_COLOR, TEXT_COLOR, ACCENT_COLOR, BACK_COLOR,
@@ -29,6 +36,11 @@ class GameScreen:
         self.ox = (WINDOW_W - gpx) // 2
         self.oy = _HEADER_H + _PAD + max(0, (play_h - gpy) // 2)
         self._grid_rect = pygame.Rect(self.ox, self.oy, gpx, gpy)
+
+        # Map UI difficulty name → settings key, then fetch time limit
+        _DIFF_MAP = {"easy": "facile", "medium": "normal", "hard": "pay"}
+        settings_key     = _DIFF_MAP.get(difficulty, "normal")
+        self.time_limit  = DIFFICULTIES[settings_key]["time_limit"]
 
         # Game State
         self.start_ticks = pygame.time.get_ticks()
@@ -82,7 +94,7 @@ class GameScreen:
             # Left click : dig
             if event.button == 1 and tile.marker == "none" and not tile.revealed:
                 if not self.board.dig(row, col):
-                    # Touch mine : reveal board
+                    # Touhc mine : reveal board
                     for board_row in self.board.board_list:
                         for t in board_row:
                             if t.marker == "flag" and t.type != "X":
@@ -125,8 +137,17 @@ class GameScreen:
         pygame.draw.line(self.screen, ACCENT_COLOR,
                          (0, _HEADER_H), (WINDOW_W, _HEADER_H), 2)
 
-        elapsed     = (pygame.time.get_ticks() - self.start_ticks) // 1000
-        timer_surf  = self._font.render(f"Temps : {elapsed}s", True, TEXT_COLOR)
+        elapsed   = (pygame.time.get_ticks() - self.start_ticks) // 1000
+        remaining = max(0, self.time_limit - elapsed)
+
+        # Countdown hit zero → game over
+        if self.playing and remaining == 0:
+            self.game_over = True
+            self.playing   = False
+
+        # Timer colour: red when under 10 s
+        timer_color = (243, 139, 168) if remaining <= 10 else TEXT_COLOR
+        timer_surf  = self._font.render(f"Temps restant : {remaining}s", True, timer_color)
         self.screen.blit(timer_surf,
                          timer_surf.get_rect(center=(WINDOW_W // 2, _HEADER_H // 2)))
 
