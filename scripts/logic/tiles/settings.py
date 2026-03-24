@@ -25,25 +25,25 @@ TITLE = "MicrotransacMines"
 
 DIFFICULTIES = {
     "facile": {
-        "rows": 9,
-        "cols": 9,
-        "min_mines": 5,
-        "max_mines": 10,
-        "time_limit": 90
+        "rows": 8,
+        "cols": 8,
+        "min_mines": 15,
+        "max_mines": 17,
+        "time_limit": 120
     },
     "normal": {
-        "rows": 15,
-        "cols": 15,
-        "min_mines": 7,
-        "max_mines": 12,
-        "time_limit": 60
+        "rows": 10,
+        "cols": 10,
+        "min_mines": 20,
+        "max_mines": 22,
+        "time_limit": 90
     },
     "pay": {
-        "rows": 20,
-        "cols": 20,
-        "min_mines": 13,
-        "max_mines": 30,
-        "time_limit": 30
+        "rows": 12,
+        "cols": 12,
+        "min_mines": 100,
+        "max_mines": 110,
+        "time_limit": 60
     }
 }
 
