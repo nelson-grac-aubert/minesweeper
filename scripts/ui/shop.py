@@ -4,6 +4,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "logic", "utils"))
 from scripts.logic.utils.assets_imports import load_image
+from scripts.ui.button import Button
 
 BG_COLOR     = (30,  30,  46)
 TEXT_COLOR   = (205, 214, 244)
@@ -17,9 +18,8 @@ class Shop:
 
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
-        self.font_title = pygame.font.SysFont("monospace", 36, bold=True)
-        self.font_body  = pygame.font.SysFont("monospace", 18)
-        self.font_back  = pygame.font.SysFont("monospace", 20, bold=True)
+        self.font_back_button  = pygame.font.SysFont("monospace", 20, bold=True)
+        self.btn_remove_ads   = Button("assets/images/remove_ads.png", center=(500, 270))
 
         # Icon shop
         raw = load_image("assets/images/store.png")
@@ -47,14 +47,15 @@ class Shop:
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
 
-        # Image + placeholder
+        # Button remove ads
+        self.btn_remove_ads.draw(self.screen)
+
+        # Title
         self.screen.blit(self.store_img, self.store_rect)
-        msg = self.font_body.render("(à venir)", True, TEXT_COLOR)
-        self.screen.blit(msg, msg.get_rect(center=(self.W // 2, 340)))
 
         # Return button
         hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
         color = ACCENT_COLOR if hover else BACK_COLOR
         pygame.draw.rect(self.screen, color, self.back_rect, border_radius=10)
-        label = self.font_back.render("← Retour", True, BG_COLOR if hover else TEXT_COLOR)
+        label = self.font_back_button.render("← Retour", True, BG_COLOR if hover else TEXT_COLOR)
         self.screen.blit(label, label.get_rect(center=self.back_rect.center))

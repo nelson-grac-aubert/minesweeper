@@ -56,8 +56,6 @@ class Options:
 
         # Title 
         self.screen.blit(self.options_img, self.options_rect)
-        msg = self.font_body.render("(à venir)", True, TEXT_COLOR)
-        self.screen.blit(msg, msg.get_rect(center=(self.W // 2, self.H // 2)))
 
         # Return button
         hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
