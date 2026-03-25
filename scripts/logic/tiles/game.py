@@ -18,27 +18,27 @@ class Game:
         self.clock      = pygame.time.Clock()
         self.playing    = False
         self.win        = False
-        self.map_mode   = "grid"          # sera tiré au sort dans new()
+        self.map_mode   = "grid"          # random pick map new()
         self.width      = 480
         self.height     = 480
         self.screen     = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption(TITLE)
 
-    # ── nouvelle partie ───────────────────────────────────────────────────
+    # New game
 
     def new(self):
-        # 1. tirage de la carte
+        # 1. random map
         self.map_mode = random.choice(MAP_MODES)
         print(f"[MAP] mode tiré : {self.map_mode}")   # ← visible dans le terminal
 
-        # 2. paramètres de difficulté
+        # 2. parameter difficulty
         settings          = DIFFICULTIES[self.difficulty]
         self.rows         = settings["rows"]
         self.cols         = settings["cols"]
         self.amount_mines = random.randint(settings["min_mines"], settings["max_mines"])
         self.max_time     = settings.get("time_limit", 120)
 
-        # 3. taille de fenêtre selon la carte
+        # 3.Windows size
         if self.map_mode == "heart":
             self.width  = TILESIZE * HEART_COLS
             self.height = TILESIZE * HEART_ROWS
@@ -47,7 +47,7 @@ class Game:
             self.height = TILESIZE * self.rows
         self.screen = pygame.display.set_mode((self.width, self.height))
 
-        # 4. création du board
+        # 4. create board
         if self.map_mode == "heart":
             self.board = Board_Heart(self.amount_mines)
         else:
@@ -57,7 +57,7 @@ class Game:
         self.playing    = True
         self.win        = False
 
-    # ── boucle principale ─────────────────────────────────────────────────
+    # main loop
 
     def run(self):
         while self.playing:
@@ -80,7 +80,7 @@ class Game:
         else:
             self.end_screen()
 
-    # ── rendu ─────────────────────────────────────────────────────────────
+    # rendered
 
     def draw(self):
         self.screen.fill(BGCOLOUR)
@@ -102,7 +102,7 @@ class Game:
 
         pygame.display.flip()
 
-    # ── événements ────────────────────────────────────────────────────────
+    # event
 
     def events(self):
         for event in pygame.event.get():
@@ -121,16 +121,16 @@ class Game:
 
                 tile = self.board.board_list[row][col]
 
-                if tile.type == "/":   # case hors-cœur → ignorée
+                if tile.type == "/":   # case outside the core → ignored
                     continue
 
                 if not self.board.mines_placed:
                     self.board.place_mines(row, col)
 
-                # Clic gauche
+                # left clic
                 if event.button == 1 and tile.marker == "none" and not tile.revealed:
                     if not self.board.dig(row, col):
-                        # défaite : révèle tout
+                        # loose : reveals everything
                         for r in self.board.board_list:
                             for t in r:
                                 if t.marker == "flag" and t.type != "X":
@@ -141,7 +141,7 @@ class Game:
                                     t.revealed = True
                         self.playing = False
 
-                # Clic droit
+                # rigth clic
                 elif event.button == 3 and not tile.revealed:
                     tile.toggle_marker()
 
@@ -153,7 +153,7 @@ class Game:
                 elif event.key == pygame.K_3:
                     self.difficulty = "pay";     self.new()
 
-    # ── écran de fin ──────────────────────────────────────────────────────
+    # end screen
 
     def end_screen(self):
         font  = pygame.font.SysFont("Arial", 48)
