@@ -1,27 +1,31 @@
 import pygame
 
 from scripts.logic.utils.assets_imports import load_image
+from scripts.ui.button import Button
 from scripts.ui.ui_settings import *
 
 class Options:
 
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
-        self.font_back  = pygame.font.SysFont("monospace", 20, bold=True)
 
         # Icon options
         raw = load_image("assets/images/options.png")
         w, h = raw.get_size()
-        self.options_img  = pygame.transform.scale(raw, (w * 3, h * 3))
-        self.options_rect = self.options_img.get_rect(center=(WINDOW_W // 2, 100))
+        self.options_img  = pygame.transform.scale(raw, (w * 4, h * 4))
+        self.options_rect = self.options_img.get_rect(center=(WINDOW_W // 2, 75))
 
-        # Return Button
+        # Back button rectangle (position reference)
         back_w, back_h = 160, 50
         self.back_rect = pygame.Rect(
             (WINDOW_W - back_w) // 2,
             WINDOW_H - back_h - 40,
             back_w, back_h
         )
+
+        # Back button sprite
+        self.back_button = Button("assets/images/return_button.png",
+                                center=self.back_rect.center)
 
     def handle_event(self, event: pygame.event.Event):
         if (
@@ -38,9 +42,5 @@ class Options:
         # Title 
         self.screen.blit(self.options_img, self.options_rect)
 
-        # Return button
-        hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
-        color = ACCENT_COLOR if hover else BACK_COLOR
-        pygame.draw.rect(self.screen, color, self.back_rect, border_radius=10)
-        label = self.font_back.render("← Retour", True, BG_COLOR if hover else TEXT_COLOR)
-        self.screen.blit(label, label.get_rect(center=self.back_rect.center))
+        # Return Button
+        self.back_button.draw(self.screen)
