@@ -13,14 +13,13 @@ class Shop:
         self.gold_purchased = False
 
         self.screen = screen
-        self.font_back_button  = pygame.font.SysFont("monospace", 20, bold=True)
         self._font_badge       = pygame.font.SysFont("Arial", 13, bold=True)
 
         # Button remove ads
         self.btn_remove_ads   = Button("assets/images/remove_ads.png", center=(500, 270))
         ads_removed_image = load_image("assets/images/ads_removed.png")
         wi, he = ads_removed_image.get_size()
-        self.img_ads_removed  = pygame.transform.scale(ads_removed_image, (wi * 3, he * 3))
+        self.img_ads_removed  = pygame.transform.scale(ads_removed_image, (wi * 4, he * 4))
 
         self.flag_button_scale = 1
         self.flag_buttons_y = 450
@@ -40,12 +39,18 @@ class Shop:
         self.store_img  = pygame.transform.scale(store_title, (w * 3, h * 3))
         self.store_rect = self.store_img.get_rect(center=(WINDOW_W // 2, 100))
 
+        # Back button rectangle (position reference)
         back_w, back_h = 160, 50
         self.back_rect = pygame.Rect(
             (WINDOW_W - back_w) // 2,
             WINDOW_H - back_h - 40,
             back_w, back_h
         )
+
+        # Back button sprite
+        self.back_button = Button("assets/images/return_button.png",
+                                center=self.back_rect.center)
+
 
     def mark_purchased(self, skin: str) -> None:
         """Called by main after purchase confirmation."""
@@ -57,8 +62,8 @@ class Shop:
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 
-            if self.back_rect.collidepoint(event.pos):
-                return "back"          # ← était "home", maintenant "back"
+            if self.back_button.rect.collidepoint(event.pos):
+                return "back"
 
             if not self.ads_removed and self.btn_remove_ads.rect.collidepoint(event.pos):
                 self.ads_removed = True
@@ -102,8 +107,5 @@ class Shop:
         # Title
         self.screen.blit(self.store_img, self.store_rect)
 
-        hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
-        color = ACCENT_COLOR if hover else BACK_COLOR
-        pygame.draw.rect(self.screen, color, self.back_rect, border_radius=10)
-        label = self.font_back_button.render("← Retour", True, BG_COLOR if hover else TEXT_COLOR)
-        self.screen.blit(label, label.get_rect(center=self.back_rect.center))
+        # Return Button
+        self.back_button.draw(self.screen)
