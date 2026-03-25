@@ -30,7 +30,14 @@ class DifficultyButton(Button):
 
     def cycle(self) -> None:
         self._index = (self._index + 1) % len(DIFFICULTIES)
-        self.image  = self._images[self.current]
+        old_center = self.rect.center
+        self.image = self._images[self.current]
+        self.rect = self.image.get_rect(center=old_center)
+
+        # Recreate hover surface with new sprite size
+        self._hover_surf = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        self._hover_surf.fill((255, 255, 255, 40))
+
 
     def is_clicked(self, event: pygame.event.Event) -> bool:
         clicked = super().is_clicked(event)
