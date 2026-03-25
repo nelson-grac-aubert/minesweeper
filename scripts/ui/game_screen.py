@@ -9,9 +9,9 @@ _TILES_DIR = os.path.abspath(
 if _TILES_DIR not in sys.path:
     sys.path.insert(0, _TILES_DIR)
 
-from scripts.logic.tiles.board import Board
-from scripts.logic.tiles.board_Heart import Board_Heart, HEART_ROWS, HEART_COLS
-from scripts.logic.tiles.settings import TILESIZE, tile_not_mine, DIFFICULTIES
+from scripts.logic.tiles.board        import Board
+from scripts.logic.tiles.board_Heart  import Board_Heart, HEART_ROWS, HEART_COLS
+from scripts.logic.tiles.settings     import TILESIZE, tile_not_mine, DIFFICULTIES
 import scripts.logic.tiles.Tile_class as _tile_module
 
 from scripts.logic.utils.assets_imports import load_image
@@ -20,15 +20,17 @@ from scripts.ui.ui_settings import *
 _HEADER_H = 70
 _PAD      = 20
 
+# Flag sprite paths for each skin
+
+
 
 class GameScreen:
 
     def __init__(self, screen: pygame.Surface,
-                 
-
-        self.map_mode = random.choice(["grid", "heart"])
                  grid_size: int, num_bombs: int, difficulty: str,
                  unlocked_skins: list):
+
+        self.map_mode = random.choice(["grid", "heart"])  # string, not tuple
 
         self.screen         = screen
         self.grid_size      = grid_size
@@ -46,15 +48,16 @@ class GameScreen:
             board_rows  = grid_size
 
         # Center the grid below the header
-        gpx    = grid_size * TILESIZE
-        gpy    = grid_size * TILESIZE
+        gpx    = board_cols * TILESIZE
+        gpy    = board_rows * TILESIZE
         play_h = WINDOW_H - _HEADER_H - _PAD * 2
         self.ox = (WINDOW_W - gpx) // 2
         self.oy = _HEADER_H + _PAD + max(0, (play_h - gpy) // 2)
         self._grid_rect = pygame.Rect(self.ox, self.oy, gpx, gpy)
 
-        _DIFF_MAP    = {"easy": "facile", "medium": "normal", "hard": "pay"}
-        settings_key = _DIFF_MAP.get(difficulty, "normal")
+        # Map UI difficulty name to the colleague's settings key
+        _DIFF_MAP       = {"easy": "facile", "medium": "normal", "hard": "pay"}
+        settings_key    = _DIFF_MAP.get(difficulty, "normal")
         self.time_limit = DIFFICULTIES[settings_key]["time_limit"]
 
         self.elapsed_before_shop = 0
@@ -68,7 +71,7 @@ class GameScreen:
         self._font_sub  = pygame.font.SysFont("Arial", 20)
         self._font_back = pygame.font.SysFont("monospace", 20, bold=True)
 
-        # ── bouton Shop (coin bas-droit, toujours visible) ────────────────
+        # Shop button (bottom-right, always visible)
         shop_w, shop_h = 160, 50
         self.shop_rect = pygame.Rect(
             WINDOW_W - shop_w - 30,
@@ -76,20 +79,13 @@ class GameScreen:
             shop_w, shop_h,
         )
 
-        # ── boutons fin de partie 
+        # End-of-game buttons (shown only on game over / win)
         btn_w, btn_h = 180, 50
-        center_y     = WINDOW_H // 2 - 80          # sous le message GAME OVER
-        self.retry_rect = pygame.Rect(
-            WINDOW_W // 2 - btn_w - 20, center_y, btn_w, btn_h)
-        self.home_rect  = pygame.Rect(
-            WINDOW_W // 2 + 20,          center_y, btn_w, btn_h)
+        center_y = WINDOW_H // 2 - 80
+        self.retry_rect = pygame.Rect(WINDOW_W // 2 - btn_w - 20, center_y, btn_w, btn_h)
+        self.home_rect  = pygame.Rect(WINDOW_W // 2 + 20,          center_y, btn_w, btn_h)
 
-    # ── resume après shop 
-
-    def resume(self):
-        self.start_ticks = pygame.time.get_ticks() - self.elapsed_before_shop * 1000
-
-    # ── événements 
+        # Back button (bottom-center)
         back_w, back_h = 160, 50
         self.back_rect = pygame.Rect(
             (WINDOW_W - back_w) // 2,
@@ -110,6 +106,10 @@ class GameScreen:
         self._skin_btn_margin = 8
         self._skin_btns: list[tuple[str, pygame.Rect]] = []
 
+    def resume(self):
+        """Restore the timer after returning from the shop."""
+        self.start_ticks = pygame.time.get_ticks() - self.elapsed_before_shop * 1000
+
     def _apply_skin(self, skin: str) -> None:
         """Patch Tile_class.tile_flag so Tile.draw() uses the selected sprite."""
         self._current_skin = skin
@@ -128,18 +128,19 @@ class GameScreen:
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 
-            # Bouton shop (toujours cliquable)
+            # Shop button is always clickable
             if self.shop_rect.collidepoint(event.pos):
                 self.elapsed_before_shop = (
                     pygame.time.get_ticks() - self.start_ticks) // 1000
                 return "shop"
 
-            # Boutons fin de partie (seulement quand game over / victoire)
+            # End-of-game buttons
             if self.game_over or self.won:
                 if self.retry_rect.collidepoint(event.pos):
                     return ("new_game", self.grid_size, self.num_bombs)
                 if self.home_rect.collidepoint(event.pos):
                     return "home"
+
             if self.back_rect.collidepoint(event.pos):
                 return "home"
 
@@ -168,11 +169,13 @@ class GameScreen:
             if tile.type == "/":
                 return None
 
+            # Place mines on first click, keeping the clicked cell and its neighbors safe
             if not self.board.mines_placed:
                 self.board.place_mines(row, col)
 
             if event.button == 1 and tile.marker == "none" and not tile.revealed:
                 if not self.board.dig(row, col):
+                    # Mine hit: reveal the whole board
                     for board_row in self.board.board_list:
                         for t in board_row:
                             if t.marker == "flag" and t.type != "X":
@@ -185,6 +188,7 @@ class GameScreen:
                     self.playing   = False
 
                 elif self.board.check_win():
+                    # Flag all remaining mines
                     for board_row in self.board.board_list:
                         for t in board_row:
                             if not t.revealed:
@@ -200,7 +204,7 @@ class GameScreen:
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
 
-        # Draw the board onto a subsurface for (0,0) coordinates always
+        # Draw the board onto a subsurface so the colleague's code uses (0,0) coords
         grid_surf = self.screen.subsurface(self._grid_rect)
         self.board.draw(grid_surf)
 
@@ -221,16 +225,11 @@ class GameScreen:
         self.screen.blit(timer_surf,
                          timer_surf.get_rect(center=(WINDOW_W // 2, _HEADER_H // 2)))
 
+        # Difficulty + map mode label (right side of header)
         map_label = "♥ Cœur" if self.map_mode == "heart" else "⊞ Grille"
         diff_surf = self._font.render(
             f"Mode : {self.difficulty.upper()}  {map_label}", True, ACCENT_COLOR)
         self.screen.blit(diff_surf,
-                         
-
-        # Bouton Shop
-        self._draw_btn(self.shop_rect, "Shop", accent=True)
-
-        # ── overlay fin de partie 
                          diff_surf.get_rect(midright=(WINDOW_W - _PAD, _HEADER_H // 2)))
 
         # Flag skin selector (left side of header)
@@ -243,6 +242,9 @@ class GameScreen:
             self.screen.blit(flag_img, flag_img.get_rect(center=rect.center))
             border_col = TEXT_COLOR if is_active else (88, 91, 112)
             pygame.draw.rect(self.screen, border_col, rect, width=2, border_radius=6)
+
+        # Shop button
+        self._draw_btn(self.shop_rect, "Shop", accent=True)
 
         # Back button
         hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
@@ -264,13 +266,8 @@ class GameScreen:
             self.screen.blit(big, big.get_rect(
                 center=(WINDOW_W // 2, WINDOW_H // 2 - 180)))
 
-            # Bouton Rejouer (gauche)
             self._draw_btn(self.retry_rect, "Rejouer")
-
-            # Bouton Menu (droite)
-            self._draw_btn(self.home_rect, "⌂ Menu")
-
-    # ── helper bouton 
+            self._draw_btn(self.home_rect,  "⌂ Menu")
 
     def _draw_btn(self, rect: pygame.Rect, label: str, accent: bool = False):
         hover = rect.collidepoint(pygame.mouse.get_pos())
