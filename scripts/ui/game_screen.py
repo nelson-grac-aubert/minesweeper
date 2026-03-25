@@ -13,16 +13,13 @@ from scripts.logic.tiles.board        import Board
 from scripts.logic.tiles.board_Heart  import Board_Heart, HEART_ROWS, HEART_COLS
 from scripts.logic.tiles.settings     import TILESIZE, tile_not_mine, DIFFICULTIES
 import scripts.logic.tiles.Tile_class as _tile_module
+from scripts.ui.button import Button
 
 from scripts.logic.utils.assets_imports import load_image
 from scripts.ui.ui_settings import *
 
 _HEADER_H = 70
 _PAD      = 20
-
-# Flag sprite paths for each skin
-
-
 
 class GameScreen:
 
@@ -85,13 +82,17 @@ class GameScreen:
         self.retry_rect = pygame.Rect(WINDOW_W // 2 - btn_w - 20, center_y, btn_w, btn_h)
         self.home_rect  = pygame.Rect(WINDOW_W // 2 + 20,          center_y, btn_w, btn_h)
 
-        # Back button (bottom-center)
+        # Back button rectangle (position reference)
         back_w, back_h = 160, 50
         self.back_rect = pygame.Rect(
             (WINDOW_W - back_w) // 2,
             WINDOW_H - back_h - 40,
-            back_w, back_h,
+            back_w, back_h
         )
+
+        # Back button sprite
+        self.back_button = Button("assets/images/return_button.png",
+                                center=self.back_rect.center)
 
         # Pre-load all flag sprites scaled to TILESIZE
         self._flag_images: dict[str, pygame.Surface] = {}
@@ -247,12 +248,7 @@ class GameScreen:
         self._draw_btn(self.shop_rect, "Shop", accent=True)
 
         # Back button
-        hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
-        color = ACCENT_COLOR if hover else BACK_COLOR
-        pygame.draw.rect(self.screen, color, self.back_rect, border_radius=10)
-        label = self._font_back.render(
-            "← Retour", True, BG_COLOR if hover else TEXT_COLOR)
-        self.screen.blit(label, label.get_rect(center=self.back_rect.center))
+        self.back_button.draw(self.screen)
 
         # End-of-game overlay
         if self.game_over or self.won:
