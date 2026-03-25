@@ -6,6 +6,9 @@ from scripts.ui.button            import Button
 from scripts.ui.difficulty_button import DifficultyButton
 from scripts.logic.utils.assets_imports import load_music
 from scripts.ui.ui_settings import *
+from scripts.ui.title_coins import *
+
+
 
 DIFFICULTY_PARAMS = {
     "easy":   {"grid": 8,  "bombs_min": 15,  "bombs_max": 20},
@@ -30,6 +33,11 @@ class HomeMenu:
         tw, th    = raw_title.get_size()
         self.title_img  = pygame.transform.scale(raw_title, (tw * 5, th * 5))
         self.title_rect = self.title_img.get_rect(center=(screen_center_x, 100))
+
+        # Coins 
+        self.left_coin, self.right_coin = load_title_coin_animations()
+        self.left_coin_rect, self.right_coin_rect = position_title_coins(self.title_rect)
+
 
         # Buttons
         self.btn_new_game   = Button("assets/images/new_game.png", center=(screen_center_x, 270))
@@ -94,6 +102,10 @@ class HomeMenu:
         if not self.ads_removed:
             self.screen.blit(self.fruit_img, self.ad_left_rect)
             self.screen.blit(self.pokemon_img, self.ad_right_rect)
+        
+        # Coins 
+        draw_title_coins(self.screen,self.left_coin,self.right_coin,self.left_coin_rect,self.right_coin_rect)
+
 
     def _draw_card(self) -> None:
         margin = 250

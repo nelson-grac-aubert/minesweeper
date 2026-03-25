@@ -27,6 +27,10 @@ def main():
 
     # Main loop
     while True:
+        
+        # Animations frames
+        dt = clock.tick(FPS) / 1000
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -69,6 +73,8 @@ def main():
         # Render
         if current == SCREEN_HOME:
             home.draw()
+            home.left_coin.update(dt)
+            home.right_coin.update(dt)
         elif current == SCREEN_OPTIONS:
             options.draw()
         elif current == SCREEN_SHOP:
@@ -79,7 +85,6 @@ def main():
             game_screen.draw()
 
         pygame.display.flip()
-        clock.tick(FPS)
 
 
 if __name__ == "__main__":
