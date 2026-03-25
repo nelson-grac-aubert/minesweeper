@@ -13,7 +13,7 @@ class Options:
         raw = load_image("assets/images/options.png")
         w, h = raw.get_size()
         self.options_img  = pygame.transform.scale(raw, (w * 4, h * 4))
-        self.options_rect = self.options_img.get_rect(center=(WINDOW_W // 2, 100))
+        self.options_rect = self.options_img.get_rect(center=(WINDOW_W // 2, 75))
 
         # Back button rectangle (position reference)
         back_w, back_h = 160, 50
