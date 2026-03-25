@@ -8,10 +8,15 @@ class Shop:
 
     def __init__(self, screen: pygame.Surface):
 
-        self.ads_removed = False
+        self.ads_removed    = False
+        self.blue_purchased = False
+        self.gold_purchased = False
+
         self.screen = screen
         # Back button font
         self.font_back_button  = pygame.font.SysFont("monospace", 20, bold=True)
+        self._font_badge       = pygame.font.SysFont("Arial", 13, bold=True)
+
         # Button remove ads
         self.btn_remove_ads   = Button("assets/images/remove_ads.png", center=(500, 270))
         # Button ads removed
@@ -22,9 +27,15 @@ class Shop:
         # Button buy flag skin
         self.flag_button_scale = 1
         self.flag_buttons_y = 450
-        self.btn_flag = Button("assets/images/shop_flag.png", (250, self.flag_buttons_y), self.flag_button_scale)
+        self.btn_flag      = Button("assets/images/shop_flag.png",      (250, self.flag_buttons_y), self.flag_button_scale)
         self.btn_blue_flag = Button("assets/images/shop_flag_blue.png", (500, self.flag_buttons_y), self.flag_button_scale)
         self.btn_gold_flag = Button("assets/images/shop_flag_gold.png", (750, self.flag_buttons_y), self.flag_button_scale)
+
+        # "Acheté" badge surface (drawn over purchased flags)
+        self._badge_surf = pygame.Surface((80, 24), pygame.SRCALPHA)
+        self._badge_surf.fill((166, 227, 161, 200))
+        badge_label = self._font_badge.render("ACHETÉ", True, (30, 30, 46))
+        self._badge_surf.blit(badge_label, badge_label.get_rect(center=(40, 12)))
 
         # Icon shop
         store_title = load_image("assets/images/store.png")
@@ -40,18 +51,34 @@ class Shop:
             back_w, back_h
         )
 
+    def mark_purchased(self, skin: str) -> None:
+        """Called by main after purchase confirmation."""
+        if skin == "blue":
+            self.blue_purchased = True
+        elif skin == "gold":
+            self.gold_purchased = True
+
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             # Button back to main menu
             if self.back_rect.collidepoint(event.pos):
                 return "home"
-            
-            # Button remove adds
+
+            # Button remove ads
             if not self.ads_removed and self.btn_remove_ads.rect.collidepoint(event.pos):
                 self.ads_removed = True
                 self.btn_remove_ads.image = self.img_ads_removed
                 self.btn_remove_ads.rect  = self.img_ads_removed.get_rect(center=(500, 270))
                 return "ads purchased"
+
+            # Blue flag — first click triggers purchase screen
+            if not self.blue_purchased and self.btn_blue_flag.rect.collidepoint(event.pos):
+                return ("flag_purchased", "blue")
+
+            # Gold flag — first click triggers purchase screen
+            if not self.gold_purchased and self.btn_gold_flag.rect.collidepoint(event.pos):
+                return ("flag_purchased", "gold")
+
         return None
 
     def draw(self) -> None:
@@ -60,10 +87,24 @@ class Shop:
         # Button remove ads
         self.btn_remove_ads.draw(self.screen)
 
-        # Button buy flags
+        # Default flag (always available — no purchase needed)
         self.btn_flag.draw(self.screen)
+
+        # Blue flag
         self.btn_blue_flag.draw(self.screen)
+        if self.blue_purchased:
+            self.screen.blit(self._badge_surf,
+                             self._badge_surf.get_rect(
+                                 centerx=self.btn_blue_flag.rect.centerx,
+                                 top=self.btn_blue_flag.rect.bottom + 4))
+
+        # Gold flag
         self.btn_gold_flag.draw(self.screen)
+        if self.gold_purchased:
+            self.screen.blit(self._badge_surf,
+                             self._badge_surf.get_rect(
+                                 centerx=self.btn_gold_flag.rect.centerx,
+                                 top=self.btn_gold_flag.rect.bottom + 4))
 
         # Title
         self.screen.blit(self.store_img, self.store_rect)

@@ -23,6 +23,9 @@ def main():
     purchase    = Purchase(screen)
     game_screen = None
 
+    # Skins
+    unlocked_skins = ["default"]
+
     current = SCREEN_HOME
 
     # Main loop
@@ -38,6 +41,7 @@ def main():
 
             action = None
 
+            # What events are listened to depending on screen
             if current == SCREEN_HOME:
                 action = home.handle_event(event)
             elif current == SCREEN_OPTIONS:
@@ -64,10 +68,18 @@ def main():
                 home.ads_removed = True
                 current = SCREEN_PURCHASE
 
+            elif isinstance(action, tuple) and action[0] == "flag_purchased":
+                skin = action[1]
+                if skin not in unlocked_skins:
+                    unlocked_skins.append(skin)
+                shop.mark_purchased(skin)
+                purchase.play_coo()
+                current = SCREEN_PURCHASE
+ 
             elif isinstance(action, tuple) and action[0] == "new_game":
                 _, grid_size, num_bombs = action
                 difficulty  = home.btn_difficulty.current  # "easy" | "medium" | "hard"
-                game_screen = GameScreen(screen, grid_size, num_bombs, difficulty)
+                game_screen = GameScreen(screen, grid_size, num_bombs, difficulty, unlocked_skins)
                 current     = SCREEN_GAME
 
         # Render
