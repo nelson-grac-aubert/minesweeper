@@ -1,5 +1,6 @@
 import sys
 import os
+import random
 import pygame
 
 _TILES_DIR = os.path.abspath(
@@ -7,7 +8,8 @@ _TILES_DIR = os.path.abspath(
 if _TILES_DIR not in sys.path:
     sys.path.insert(0, _TILES_DIR)
 
-from scripts.logic.tiles.board import Board        
+from scripts.logic.tiles.board import Board
+from scripts.logic.tiles.board_Heart import Board_Heart, HEART_ROWS, HEART_COLS
 from scripts.logic.tiles.settings import TILESIZE, tile_not_mine, DIFFICULTIES
 
 from scripts.ui.ui_settings import (
@@ -15,8 +17,9 @@ from scripts.ui.ui_settings import (
     WINDOW_W, WINDOW_H,
 )
 
-_HEADER_H = 70   # Top bar size (time, difficulty)
-_PAD      = 20   # Margin around board
+_HEADER_H = 70
+_PAD      = 20
+
 
 class GameScreen:
 
@@ -25,36 +28,46 @@ class GameScreen:
         self.screen     = screen
         self.grid_size  = grid_size
         self.num_bombs  = num_bombs
-        self.difficulty = difficulty  # "easy" | "medium" | "pay"
+        self.difficulty = difficulty
 
-        self.board = Board(grid_size, grid_size, num_bombs)
+        # ── tirage aléatoire de la carte ──────────────────────────────────
+        self.map_mode = random.choice(["grid", "heart"])
 
-        # Grid position
-        gpx    = grid_size * TILESIZE
-        gpy    = grid_size * TILESIZE
+        if self.map_mode == "heart":
+            self.board  = Board_Heart(num_bombs)
+            board_cols  = HEART_COLS
+            board_rows  = HEART_ROWS
+        else:
+            self.board  = Board(grid_size, grid_size, num_bombs)
+            board_cols  = grid_size
+            board_rows  = grid_size
+
+        # ── centrage de la grille ─────────────────────────────────────────
+        gpx    = board_cols * TILESIZE
+        gpy    = board_rows * TILESIZE
         play_h = WINDOW_H - _HEADER_H - _PAD * 2
         self.ox = (WINDOW_W - gpx) // 2
         self.oy = _HEADER_H + _PAD + max(0, (play_h - gpy) // 2)
         self._grid_rect = pygame.Rect(self.ox, self.oy, gpx, gpy)
 
-        # Map UI difficulty name → settings key, then fetch time limit
-        _DIFF_MAP = {"easy": "facile", "medium": "normal", "hard": "pay"}
-        settings_key     = _DIFF_MAP.get(difficulty, "normal")
+        # ── timer ─────────────────────────────────────────────────────────
+        _DIFF_MAP    = {"easy": "facile", "medium": "normal", "hard": "pay"}
+        settings_key = _DIFF_MAP.get(difficulty, "normal")
         self.time_limit  = DIFFICULTIES[settings_key]["time_limit"]
 
-        # Game State
+        # ── état ──────────────────────────────────────────────────────────
         self.start_ticks = pygame.time.get_ticks()
         self.playing     = True
         self.game_over   = False
         self.won         = False
 
-        # Fonts
+        # ── polices ───────────────────────────────────────────────────────
         self._font      = pygame.font.SysFont("Arial", 22, bold=True)
         self._font_big  = pygame.font.SysFont("Arial", 52, bold=True)
         self._font_sub  = pygame.font.SysFont("Arial", 20)
         self._font_back = pygame.font.SysFont("monospace", 20, bold=True)
 
-        # Return Button
+        # ── bouton Retour ─────────────────────────────────────────────────
         back_w, back_h = 160, 50
         self.back_rect = pygame.Rect(
             (WINDOW_W - back_w) // 2,
@@ -62,10 +75,9 @@ class GameScreen:
             back_w, back_h,
         )
 
-    # Events
+    # ── événements ────────────────────────────────────────────────────────
 
     def handle_event(self, event: pygame.event.Event):
-        # Retun button
         if (event.type == pygame.MOUSEBUTTONDOWN
                 and event.button == 1
                 and self.back_rect.collidepoint(event.pos)):
@@ -77,28 +89,31 @@ class GameScreen:
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
 
-            # Check click is on grid
             if not self._grid_rect.collidepoint(mx, my):
                 return None
 
-            # Convert to grid coordinates
             col = (mx - self.ox) // TILESIZE
             row = (my - self.oy) // TILESIZE
 
+            # Sécurité bornes
+            if not (0 <= row < self.board.rows and 0 <= col < self.board.cols):
+                return None
+
             tile = self.board.board_list[row][col]
 
-            # First click : places bombs
+            # Case hors-cœur : ignorée
+            if tile.type == "/":
+                return None
+
             if not self.board.mines_placed:
                 self.board.place_mines(row, col)
 
-            # Left click : dig
+            # Clic gauche
             if event.button == 1 and tile.marker == "none" and not tile.revealed:
                 if not self.board.dig(row, col):
-                    # Touhc mine : reveal board
                     for board_row in self.board.board_list:
                         for t in board_row:
                             if t.marker == "flag" and t.type != "X":
-                                # Misplaced flag
                                 t.marker   = "none"
                                 t.revealed = True
                                 t.image    = tile_not_mine
@@ -108,7 +123,6 @@ class GameScreen:
                     self.playing   = False
 
                 elif self.board.check_win():
-                    # Victory : flag all mines
                     for board_row in self.board.board_list:
                         for t in board_row:
                             if not t.revealed:
@@ -116,22 +130,22 @@ class GameScreen:
                     self.won     = True
                     self.playing = False
 
-            # Right click : drop flag
+            # Clic droit
             elif event.button == 3 and not tile.revealed:
                 tile.toggle_marker()
 
         return None
 
-    # Render
+    # ── rendu ─────────────────────────────────────────────────────────────
 
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
 
-        # Board on a pygame subsurface middle of the screen
+        # Grille
         grid_surf = self.screen.subsurface(self._grid_rect)
         self.board.draw(grid_surf)
 
-        # Top pannel
+        # Barre du haut
         pygame.draw.rect(self.screen, OVERLAY_COLOR,
                          pygame.Rect(0, 0, WINDOW_W, _HEADER_H))
         pygame.draw.line(self.screen, ACCENT_COLOR,
@@ -140,23 +154,23 @@ class GameScreen:
         elapsed   = (pygame.time.get_ticks() - self.start_ticks) // 1000
         remaining = max(0, self.time_limit - elapsed)
 
-        # Countdown hit zero → game over
         if self.playing and remaining == 0:
             self.game_over = True
             self.playing   = False
 
-        # Timer colour: red when under 10 s
         timer_color = (243, 139, 168) if remaining <= 10 else TEXT_COLOR
         timer_surf  = self._font.render(f"Temps restant : {remaining}s", True, timer_color)
         self.screen.blit(timer_surf,
                          timer_surf.get_rect(center=(WINDOW_W // 2, _HEADER_H // 2)))
 
+        # Difficulté + indicateur de carte (cœur / grille)
+        map_label = "♥ Cœur" if self.map_mode == "heart" else "⊞ Grille"
         diff_surf = self._font.render(
-            f"Mode : {self.difficulty.upper()}", True, ACCENT_COLOR)
+            f"Mode : {self.difficulty.upper()}  {map_label}", True, ACCENT_COLOR)
         self.screen.blit(diff_surf,
                          diff_surf.get_rect(midright=(WINDOW_W - 20, _HEADER_H // 2)))
 
-        # Return button
+        # Bouton Retour
         hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
         color = ACCENT_COLOR if hover else BACK_COLOR
         pygame.draw.rect(self.screen, color, self.back_rect, border_radius=10)
@@ -164,7 +178,7 @@ class GameScreen:
             "← Retour", True, BG_COLOR if hover else TEXT_COLOR)
         self.screen.blit(label, label.get_rect(center=self.back_rect.center))
 
-        # Game over overlay
+        # Overlay fin de partie
         if self.game_over or self.won:
             overlay = pygame.Surface((WINDOW_W, WINDOW_H), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 150))
