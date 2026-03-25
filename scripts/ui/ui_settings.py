@@ -17,3 +17,9 @@ SCREEN_OPTIONS  = "options"
 SCREEN_SHOP = "shop"
 SCREEN_PURCHASE = "purchase"
 SCREEN_GAME     = "game"     # Adrien et Cécilia
+
+SKIN_ASSETS = {
+    "default": "assets/images/masked_tile_flag.png",
+    "blue":    "assets/images/masked_tile_flag_blue.png",
+    "gold":    "assets/images/masked_tile_flag_gold.png",
+}
