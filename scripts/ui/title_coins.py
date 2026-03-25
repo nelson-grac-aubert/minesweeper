@@ -6,8 +6,8 @@ from scripts.ui.animated_sprite import AnimatedSprite
 def load_title_coin_animations(frame_rate: int = 12):
     """Load 2 coins animations"""
 
-    left_coin  = AnimatedSprite("assets/images/coin",  frame_rate, 4)
-    right_coin = AnimatedSprite("assets/images/coin", frame_rate, 4)
+    left_coin  = AnimatedSprite("assets/images/coin",  frame_rate, 5)
+    right_coin = AnimatedSprite("assets/images/coin", frame_rate, 5)
 
     return left_coin, right_coin
 
