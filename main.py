@@ -16,19 +16,17 @@ def main():
     pygame.display.set_caption(WINDOW_TITLE)
     clock  = pygame.time.Clock()
 
-    # Screens
     home        = HomeMenu(screen)
     options     = Options(screen)
     shop        = Shop(screen)
     purchase    = Purchase(screen)
     game_screen = None
 
-    current = SCREEN_HOME
+    current       = SCREEN_HOME
+    previous      = SCREEN_HOME   # ← mémorise l'écran avant le shop
 
-    # Main loop
     while True:
-        
-        # Animations frames
+
         dt = clock.tick(FPS) / 1000
 
         for event in pygame.event.get():
@@ -49,15 +47,25 @@ def main():
             elif current == SCREEN_GAME and game_screen:
                 action = game_screen.handle_event(event)
 
-            # Transitions
+            # ── transitions 
+
             if action == "options":
                 current = SCREEN_OPTIONS
 
             elif action == "shop":
-                current = SCREEN_SHOP
+                previous = current          # retient d'où on vient
+                current  = SCREEN_SHOP
 
             elif action == "home":
                 current = SCREEN_HOME
+
+            elif action == "back":
+                # Retour générique depuis le shop
+                if previous == SCREEN_GAME and game_screen:
+                    game_screen.resume()    # relance le timer
+                    current = SCREEN_GAME
+                else:
+                    current = SCREEN_HOME
 
             elif action == "ads purchased":
                 purchase.play_coo()
@@ -66,11 +74,13 @@ def main():
 
             elif isinstance(action, tuple) and action[0] == "new_game":
                 _, grid_size, num_bombs = action
-                difficulty  = home.btn_difficulty.current  # "easy" | "medium" | "hard"
+                difficulty  = home.btn_difficulty.current
                 game_screen = GameScreen(screen, grid_size, num_bombs, difficulty)
+                previous    = SCREEN_HOME
                 current     = SCREEN_GAME
 
-        # Render
+        # ── rendu
+
         if current == SCREEN_HOME:
             home.draw()
             home.left_coin.update(dt)

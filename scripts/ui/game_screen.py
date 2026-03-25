@@ -30,7 +30,6 @@ class GameScreen:
         self.num_bombs  = num_bombs
         self.difficulty = difficulty
 
-        # ── tirage aléatoire de la carte ──────────────────────────────────
         self.map_mode = random.choice(["grid", "heart"])
 
         if self.map_mode == "heart":
@@ -42,7 +41,6 @@ class GameScreen:
             board_cols  = grid_size
             board_rows  = grid_size
 
-        # ── centrage de la grille ─────────────────────────────────────────
         gpx    = board_cols * TILESIZE
         gpy    = board_rows * TILESIZE
         play_h = WINDOW_H - _HEADER_H - _PAD * 2
@@ -50,38 +48,59 @@ class GameScreen:
         self.oy = _HEADER_H + _PAD + max(0, (play_h - gpy) // 2)
         self._grid_rect = pygame.Rect(self.ox, self.oy, gpx, gpy)
 
-        # ── timer ─────────────────────────────────────────────────────────
         _DIFF_MAP    = {"easy": "facile", "medium": "normal", "hard": "pay"}
         settings_key = _DIFF_MAP.get(difficulty, "normal")
-        self.time_limit  = DIFFICULTIES[settings_key]["time_limit"]
+        self.time_limit = DIFFICULTIES[settings_key]["time_limit"]
 
-        # ── état ──────────────────────────────────────────────────────────
+        self.elapsed_before_shop = 0
         self.start_ticks = pygame.time.get_ticks()
         self.playing     = True
         self.game_over   = False
         self.won         = False
 
-        # ── polices ───────────────────────────────────────────────────────
         self._font      = pygame.font.SysFont("Arial", 22, bold=True)
         self._font_big  = pygame.font.SysFont("Arial", 52, bold=True)
         self._font_sub  = pygame.font.SysFont("Arial", 20)
         self._font_back = pygame.font.SysFont("monospace", 20, bold=True)
 
-        # ── bouton Retour ─────────────────────────────────────────────────
-        back_w, back_h = 160, 50
-        self.back_rect = pygame.Rect(
-            (WINDOW_W - back_w) // 2,
-            WINDOW_H - back_h - 40,
-            back_w, back_h,
+        # ── bouton Shop (coin bas-droit, toujours visible) ────────────────
+        shop_w, shop_h = 160, 50
+        self.shop_rect = pygame.Rect(
+            WINDOW_W - shop_w - 30,
+            WINDOW_H - shop_h - 30,
+            shop_w, shop_h,
         )
 
-    # ── événements ────────────────────────────────────────────────────────
+        # ── boutons fin de partie 
+        btn_w, btn_h = 180, 50
+        center_y     = WINDOW_H // 2 - 80          # sous le message GAME OVER
+        self.retry_rect = pygame.Rect(
+            WINDOW_W // 2 - btn_w - 20, center_y, btn_w, btn_h)
+        self.home_rect  = pygame.Rect(
+            WINDOW_W // 2 + 20,          center_y, btn_w, btn_h)
+
+    # ── resume après shop 
+
+    def resume(self):
+        self.start_ticks = pygame.time.get_ticks() - self.elapsed_before_shop * 1000
+
+    # ── événements 
 
     def handle_event(self, event: pygame.event.Event):
-        if (event.type == pygame.MOUSEBUTTONDOWN
-                and event.button == 1
-                and self.back_rect.collidepoint(event.pos)):
-            return "home"
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+
+            # Bouton shop (toujours cliquable)
+            if self.shop_rect.collidepoint(event.pos):
+                self.elapsed_before_shop = (
+                    pygame.time.get_ticks() - self.start_ticks) // 1000
+                return "shop"
+
+            # Boutons fin de partie (seulement quand game over / victoire)
+            if self.game_over or self.won:
+                if self.retry_rect.collidepoint(event.pos):
+                    return ("new_game", self.grid_size, self.num_bombs)
+                if self.home_rect.collidepoint(event.pos):
+                    return "home"
 
         if not self.playing:
             return None
@@ -95,20 +114,17 @@ class GameScreen:
             col = (mx - self.ox) // TILESIZE
             row = (my - self.oy) // TILESIZE
 
-            # Sécurité bornes
             if not (0 <= row < self.board.rows and 0 <= col < self.board.cols):
                 return None
 
             tile = self.board.board_list[row][col]
 
-            # Case hors-cœur : ignorée
             if tile.type == "/":
                 return None
 
             if not self.board.mines_placed:
                 self.board.place_mines(row, col)
 
-            # Clic gauche
             if event.button == 1 and tile.marker == "none" and not tile.revealed:
                 if not self.board.dig(row, col):
                     for board_row in self.board.board_list:
@@ -130,18 +146,16 @@ class GameScreen:
                     self.won     = True
                     self.playing = False
 
-            # Clic droit
             elif event.button == 3 and not tile.revealed:
                 tile.toggle_marker()
 
         return None
 
-    # ── rendu ─────────────────────────────────────────────────────────────
+    # ── rendu 
 
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
 
-        # Grille
         grid_surf = self.screen.subsurface(self._grid_rect)
         self.board.draw(grid_surf)
 
@@ -163,22 +177,16 @@ class GameScreen:
         self.screen.blit(timer_surf,
                          timer_surf.get_rect(center=(WINDOW_W // 2, _HEADER_H // 2)))
 
-        # Difficulté + indicateur de carte (cœur / grille)
         map_label = "♥ Cœur" if self.map_mode == "heart" else "⊞ Grille"
         diff_surf = self._font.render(
             f"Mode : {self.difficulty.upper()}  {map_label}", True, ACCENT_COLOR)
         self.screen.blit(diff_surf,
                          diff_surf.get_rect(midright=(WINDOW_W - 20, _HEADER_H // 2)))
 
-        # Bouton Retour
-        hover = self.back_rect.collidepoint(pygame.mouse.get_pos())
-        color = ACCENT_COLOR if hover else BACK_COLOR
-        pygame.draw.rect(self.screen, color, self.back_rect, border_radius=10)
-        label = self._font_back.render(
-            "← Retour", True, BG_COLOR if hover else TEXT_COLOR)
-        self.screen.blit(label, label.get_rect(center=self.back_rect.center))
+        # Bouton Shop
+        self._draw_btn(self.shop_rect, "Shop", accent=True)
 
-        # Overlay fin de partie
+        # ── overlay fin de partie 
         if self.game_over or self.won:
             overlay = pygame.Surface((WINDOW_W, WINDOW_H), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 150))
@@ -188,10 +196,24 @@ class GameScreen:
             msg_col = (166, 227, 161) if self.won else (243, 139, 168)
             big     = self._font_big.render(msg, True, msg_col)
             self.screen.blit(big, big.get_rect(
-                center=(WINDOW_W // 2, WINDOW_H // 2 - 220)))
-
-            sub = self._font_sub.render(
-                "Clique sur  ← Retour  pour revenir au menu",
-                True, TEXT_COLOR)
-            self.screen.blit(sub, sub.get_rect(
                 center=(WINDOW_W // 2, WINDOW_H // 2 - 180)))
+
+            # Bouton Rejouer (gauche)
+            self._draw_btn(self.retry_rect, "Rejouer")
+
+            # Bouton Menu (droite)
+            self._draw_btn(self.home_rect, "⌂ Menu")
+
+    # ── helper bouton 
+
+    def _draw_btn(self, rect: pygame.Rect, label: str, accent: bool = False):
+        hover = rect.collidepoint(pygame.mouse.get_pos())
+        if accent:
+            bg = ACCENT_COLOR if not hover else TEXT_COLOR
+            fg = BG_COLOR
+        else:
+            bg = ACCENT_COLOR if hover else BACK_COLOR
+            fg = BG_COLOR if hover else TEXT_COLOR
+        pygame.draw.rect(self.screen, bg, rect, border_radius=10)
+        surf = self._font_back.render(label, True, fg)
+        self.screen.blit(surf, surf.get_rect(center=rect.center))
