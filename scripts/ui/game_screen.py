@@ -71,11 +71,11 @@ class GameScreen:
         self._font_sub  = pygame.font.SysFont("Arial", 20)
         self._font_back = pygame.font.SysFont("monospace", 20, bold=True)
 
-        # Shop button (bottom-right, always visible)
+        # Shop button rect (used for click detection)
         shop_w, shop_h = 160, 50
         self.shop_rect = pygame.Rect(
-            WINDOW_W - shop_w - 30,
-            WINDOW_H - shop_h - 30,
+            WINDOW_W - shop_w - 75,
+            WINDOW_H - shop_h - 50,
             shop_w, shop_h,
         )
 
@@ -99,9 +99,14 @@ class GameScreen:
         pub_w = self._grid_rect.width
         pub_y = self._grid_rect.top - pub_h - 4
         self.pub_banner = AdBanner(screen, pub_x, pub_y, pub_w, pub_h)
+
         # Back button sprite
         self.back_button = Button("assets/images/return_button.png",
                                 center=self.back_rect.center)
+
+        # Shop button sprite (remplace le label texte)
+        self.shop_button = Button("assets/images/store.png",
+                                  self.shop_rect.center, 2)
 
         # Pre-load all flag sprites scaled to TILESIZE
         self._flag_images: dict[str, pygame.Surface] = {}
@@ -260,10 +265,10 @@ class GameScreen:
             border_col = TEXT_COLOR if is_active else (88, 91, 112)
             pygame.draw.rect(self.screen, border_col, rect, width=2, border_radius=6)
 
-        # Shop button
-        self._draw_btn(self.shop_rect, "Shop", accent=True)
+        # Shop button sprite
+        self.shop_button.draw(self.screen)
 
-        # Back button
+        # Back button sprite
         self.back_button.draw(self.screen)
 
         # End-of-game overlay
