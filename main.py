@@ -26,6 +26,7 @@ def main():
     previous      = SCREEN_HOME   # ← memorizes the screen before the shop
     # Skins
     unlocked_skins = ["default"]
+    ads_removed    = False         # ← NEW : tracks whether ads have been removed
 
     current = SCREEN_HOME
 
@@ -74,8 +75,11 @@ def main():
                     current = SCREEN_HOME
 
             elif action == "ads purchased":
+                ads_removed = True                          # ← NEW : update global flag
                 purchase.play_coo()
                 home.ads_removed = True
+                if game_screen:                             # ← NEW : hide ads in current game
+                    game_screen.ads_removed = True
                 current = SCREEN_PURCHASE
 
             elif isinstance(action, tuple) and action[0] == "flag_purchased":
@@ -89,7 +93,8 @@ def main():
             elif isinstance(action, tuple) and action[0] == "new_game":
                 _, grid_size, num_bombs = action
                 difficulty  = home.btn_difficulty.current  # "easy" | "medium" | "hard"
-                game_screen = GameScreen(screen, grid_size, num_bombs, difficulty, unlocked_skins)
+                game_screen = GameScreen(screen, grid_size, num_bombs, difficulty,
+                                         unlocked_skins, ads_removed)  # ← NEW : pass ads_removed
                 current     = SCREEN_GAME
 
         # rendering

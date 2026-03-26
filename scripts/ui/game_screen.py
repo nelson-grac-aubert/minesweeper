@@ -26,7 +26,7 @@ class GameScreen:
 
     def __init__(self, screen: pygame.Surface,
                  grid_size: int, num_bombs: int, difficulty: str,
-                 unlocked_skins: list):
+                 unlocked_skins: list, ads_removed: bool = False):  # ← NEW : ads_removed param
 
         self.map_mode = random.choice(["grid", "grid", "grid", "heart"])
 
@@ -35,6 +35,7 @@ class GameScreen:
         self.num_bombs      = num_bombs
         self.difficulty     = difficulty
         self.unlocked_skins = unlocked_skins
+        self.ads_removed    = ads_removed  # ← NEW : store the flag
 
         if self.map_mode == "heart":
             self.board  = Board_Heart(num_bombs)
@@ -202,7 +203,8 @@ class GameScreen:
 
     def update(self, dt_ms: int) -> None:
         """Call every frame with the delta-time in milliseconds."""
-        self.pub_banner.update(dt_ms)
+        if not self.ads_removed:          # ← NEW : only update banner if ads are active
+            self.pub_banner.update(dt_ms)
 
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
@@ -210,7 +212,8 @@ class GameScreen:
         grid_surf = self.screen.subsurface(self._grid_rect)
         self.board.draw(grid_surf)
 
-        self.pub_banner.draw()
+        if not self.ads_removed:          # ← NEW : only draw banner if ads are active
+            self.pub_banner.draw()
 
         pygame.draw.rect(self.screen, OVERLAY_COLOR,
                          pygame.Rect(0, 0, WINDOW_W, _HEADER_H))
