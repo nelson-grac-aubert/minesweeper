@@ -23,7 +23,7 @@ def main():
     game_screen = None
 
     current       = SCREEN_HOME
-    previous      = SCREEN_HOME   # ← mémorise l'écran avant le shop
+    previous      = SCREEN_HOME
     # Skins
     unlocked_skins = ["default"]
 
@@ -31,8 +31,8 @@ def main():
 
     while True:
 
-        dt_ms = clock.tick(FPS)          # millisecondes (entier)
-        dt    = dt_ms / 1000             # secondes (float) pour les autres écrans
+        dt_ms = clock.tick(FPS)          # microseconds
+        dt    = dt_ms / 1000             # seconds
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -53,22 +53,22 @@ def main():
             elif current == SCREEN_GAME and game_screen:
                 action = game_screen.handle_event(event)
 
-            # ── transitions 
+            # Transitions
 
             if action == "options":
                 current = SCREEN_OPTIONS
 
             elif action == "shop":
-                previous = current          # retient d'où on vient
+                previous = current          # Remembers what screen was before (game or menu)
                 current  = SCREEN_SHOP
 
             elif action == "home":
                 current = SCREEN_HOME
 
             elif action == "back":
-                # Retour générique depuis le shop
+                # Back from shop
                 if previous == SCREEN_GAME and game_screen:
-                    game_screen.resume()    # relance le timer
+                    game_screen.resume()    # Resume timer
                     current = SCREEN_GAME
                 else:
                     current = SCREEN_HOME
@@ -105,7 +105,7 @@ def main():
         elif current == SCREEN_PURCHASE:
             purchase.draw()
         elif current == SCREEN_GAME and game_screen:
-            game_screen.update(dt_ms)   # ← anime la pub (ms)
+            game_screen.update(dt_ms)   # Animate ad
             game_screen.draw()
 
         pygame.display.flip()
