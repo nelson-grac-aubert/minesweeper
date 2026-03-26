@@ -3,6 +3,7 @@ import os
 import random
 import pygame
 
+
 # Add the colleague's tiles directory to sys.path so their bare imports work
 _TILES_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', 'logic', 'tiles'))
@@ -17,6 +18,8 @@ from scripts.ui.button import Button
 
 from scripts.logic.utils.assets_imports import load_image
 from scripts.ui.ui_settings import *
+from scripts.ui.pub import AdBanner
+
 
 _HEADER_H = 70
 _PAD      = 20
@@ -90,6 +93,12 @@ class GameScreen:
             back_w, back_h
         )
 
+        # Ad banner — même largeur que la grille, collée JUSTE AU-DESSUS de la grille
+        pub_h = 90
+        pub_x = self._grid_rect.left
+        pub_w = self._grid_rect.width
+        pub_y = self._grid_rect.top - pub_h - 4
+        self.pub_banner = AdBanner(screen, pub_x, pub_y, pub_w, pub_h)
         # Back button sprite
         self.back_button = Button("assets/images/return_button.png",
                                 center=self.back_rect.center)
@@ -202,12 +211,19 @@ class GameScreen:
 
         return None
 
+    def update(self, dt_ms: int) -> None:
+        """Appeler chaque frame avec le delta-time en millisecondes."""
+        self.pub_banner.update(dt_ms)
+
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
 
         # Draw the board onto a subsurface so the colleague's code uses (0,0) coords
         grid_surf = self.screen.subsurface(self._grid_rect)
         self.board.draw(grid_surf)
+
+        # Ad banner — juste AU-DESSUS de la grille, même largeur
+        self.pub_banner.draw()
 
         # Header background
         pygame.draw.rect(self.screen, OVERLAY_COLOR,
