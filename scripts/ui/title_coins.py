@@ -18,7 +18,7 @@ def position_title_coins(title_rect: pygame.Rect, offset: int = 60):
     left_rect = pygame.Rect(0, 0, 0, 0)
     right_rect = pygame.Rect(0, 0, 0, 0)
 
-    # On place les coins autour du titre
+    # Place the coins around the title
     left_rect.midright  = (title_rect.left - offset,  title_rect.centery)
     right_rect.midleft  = (title_rect.right + offset, title_rect.centery)
 
