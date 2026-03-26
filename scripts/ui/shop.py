@@ -13,7 +13,6 @@ class Shop:
         self.gold_purchased = False
 
         self.screen = screen
-        self._font_badge       = pygame.font.SysFont("Arial", 13, bold=True)
 
         # Button remove ads
         self.btn_remove_ads   = Button("assets/images/remove_ads.png", center=(500, 270))
@@ -27,11 +26,11 @@ class Shop:
         self.btn_blue_flag = Button("assets/images/shop_flag_blue.png", (500, self.flag_buttons_y), self.flag_button_scale)
         self.btn_gold_flag = Button("assets/images/shop_flag_gold.png", (750, self.flag_buttons_y), self.flag_button_scale)
 
-        # "Acheté" badge surface (drawn over purchased flags)
-        self._badge_surf = pygame.Surface((80, 24), pygame.SRCALPHA)
-        self._badge_surf.fill((166, 227, 161, 200))
-        badge_label = self._font_badge.render("ACHETÉ", True, (30, 30, 46))
-        self._badge_surf.blit(badge_label, badge_label.get_rect(center=(40, 12)))
+        # "Obtenu" badge surface on flag skins
+        badge_img = load_image("assets/images/bought.png")
+        bw, bh = badge_img.get_size()
+        self.badge_img = pygame.transform.scale(badge_img, (bw * 1.5, bh * 1.5)) 
+        self.badge_rect = self.badge_img.get_rect()
 
         # Icon shop
         store_title = load_image("assets/images/store.png")
@@ -91,18 +90,20 @@ class Shop:
         # Blue flag
         self.btn_blue_flag.draw(self.screen)
         if self.blue_purchased:
-            self.screen.blit(self._badge_surf,
-                             self._badge_surf.get_rect(
-                                 centerx=self.btn_blue_flag.rect.centerx,
-                                 top=self.btn_blue_flag.rect.bottom + 4))
+            rect = self.badge_img.get_rect(
+                centerx=self.btn_blue_flag.rect.centerx,
+                top=self.btn_blue_flag.rect.bottom
+            )
+            self.screen.blit(self.badge_img, rect)
 
         # Gold flag
         self.btn_gold_flag.draw(self.screen)
         if self.gold_purchased:
-            self.screen.blit(self._badge_surf,
-                             self._badge_surf.get_rect(
-                                 centerx=self.btn_gold_flag.rect.centerx,
-                                 top=self.btn_gold_flag.rect.bottom + 4))
+            rect = self.badge_img.get_rect(
+                centerx=self.btn_gold_flag.rect.centerx,
+                top=self.btn_gold_flag.rect.bottom
+            )
+            self.screen.blit(self.badge_img, rect)
 
         # Title
         self.screen.blit(self.store_img, self.store_rect)
