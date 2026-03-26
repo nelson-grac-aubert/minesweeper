@@ -22,7 +22,7 @@ HEART_COLS = max(len(row) for row in HEART_PATTERN)
 
 
 class Board_Heart:
-    """Grille jouable en forme de cœur — sans héritage de Board."""
+    """Heart-shaped playable grid — no Board legacy."""
 
     def __init__(self, amount_mines: int):
         self.rows         = HEART_ROWS
@@ -33,7 +33,7 @@ class Board_Heart:
         self.board_list   = self._build_grid()
         self._void        = self._collect_void()
 
-    # ── construction ────────────────────────────────────────────────────────
+    # build
 
     def _build_grid(self):
         grid = []
@@ -56,7 +56,7 @@ class Board_Heart:
             if self.board_list[r][c].type == "/"
         }
 
-    # ── placement ───────────────────────────────────────────────────────────
+    # placement
 
     def place_mines(self, safe_row: int, safe_col: int):
         safe = {
@@ -99,7 +99,7 @@ class Board_Heart:
                     self.board_list[r][c].type  = "C"
                     self.board_list[r][c].image = tile_numbers[adj - 1]
 
-    # ── dig ─────────────────────────────────────────────────────────────────
+    # dig 
 
     def dig(self, row: int, col: int):
         if (row, col) in self._void:
