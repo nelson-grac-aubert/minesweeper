@@ -1,4 +1,4 @@
-# pub.py
+
 # Bannière publicitaire fictive pour MicrotransacMines.
 # Usage : AdBanner(screen, x, y, width, height) puis .update() + .draw() chaque frame.
 
@@ -7,7 +7,7 @@ import random
 import math
 
 
-# ---------------------------------------------------------------- données fictives
+# données fictives
 
 ADS = [
     {

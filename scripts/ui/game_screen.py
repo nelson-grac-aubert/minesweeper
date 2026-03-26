@@ -3,6 +3,7 @@ import os
 import random
 import pygame
 
+
 # Add the colleague's tiles directory to sys.path so their bare imports work
 _TILES_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', 'logic', 'tiles'))
@@ -16,6 +17,8 @@ import scripts.logic.tiles.Tile_class as _tile_module
 
 from scripts.logic.utils.assets_imports import load_image
 from scripts.ui.ui_settings import *
+from scripts.ui.pub import AdBanner
+
 
 _HEADER_H = 70
 _PAD      = 20
@@ -32,6 +35,7 @@ class GameScreen:
 
         self.map_mode = random.choice(["grid", "heart"])  # string, not tuple
 
+        self.pub_banner      = AdBanner(screen, 30, WINDOW_H - 120, 300, 90)  
         self.screen         = screen
         self.grid_size      = grid_size
         self.num_bombs      = num_bombs
@@ -280,3 +284,4 @@ class GameScreen:
         pygame.draw.rect(self.screen, bg, rect, border_radius=10)
         surf = self._font_back.render(label, True, fg)
         self.screen.blit(surf, surf.get_rect(center=rect.center))
+        self.pub_banner.draw()
