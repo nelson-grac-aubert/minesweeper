@@ -92,8 +92,12 @@ class GameScreen:
         self.back_button = Button("assets/images/return_button.png",
                                   self.back_rect.center, 1.5)
 
-        self.shop_button = Button("assets/images/store.png",
-                                  self.shop_rect.center, 2)
+        self.all_shop_buttons = []
+        self.positions = self.generate_shop_button_positions()
+
+        for pos in self.positions:
+            rect = pygame.Rect(pos[0], pos[1], shop_w, shop_h)
+            self.all_shop_buttons.append(Button("assets/images/store.png", rect.center, 2))
 
         # Replay button
         replay_center = (WINDOW_W // 2, self.back_rect.top - 20)
@@ -111,6 +115,25 @@ class GameScreen:
         self._skin_btn_size   = 36
         self._skin_btn_margin = 8
         self._skin_btns: list[tuple[str, pygame.Rect]] = []
+
+    def generate_shop_button_positions(self):
+        positions = []
+
+        shop_w, shop_h = 160, 50
+        spacing_from_edge = 68
+
+        # Right buttons
+
+        right_x = WINDOW_W - shop_w - spacing_from_edge
+        right_y = 5 * WINDOW_H // 6
+        positions.append((right_x, right_y))
+
+        # Left buttons
+        left_x = spacing_from_edge
+        left_y = WINDOW_H // 5
+        positions.append((left_x, left_y))
+
+        return positions
 
     def resume(self):
         """Restore the timer after returning from the shop."""
@@ -134,11 +157,10 @@ class GameScreen:
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 
-            if self.shop_rect.collidepoint(event.pos):
-                self.elapsed_before_shop = (
-                    pygame.time.get_ticks() - self.start_ticks) // 1000
-                return "shop"
-
+            for index, button in enumerate(self.all_shop_buttons):
+                if button.rect.collidepoint(event.pos):
+                    self.elapsed_before_shop = (pygame.time.get_ticks() - self.start_ticks) // 1000
+                    return "shop"
             
             if self.retry_button.is_clicked(event):
                 return ("new_game", self.grid_size, self.num_bombs)
@@ -256,6 +278,9 @@ class GameScreen:
             pygame.draw.rect(self.screen, border_col, rect, width=2, border_radius=6)
 
         # Buttons
-        self.shop_button.draw(self.screen)
         self.retry_button.draw(self.screen)
         self.back_button.draw(self.screen)
+
+        for button in self.all_shop_buttons:
+            button.draw(self.screen)
+
