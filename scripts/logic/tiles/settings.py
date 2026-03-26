@@ -26,7 +26,7 @@ TITLE = "MicrotransacMines"
 DIFFICULTY_PARAMS = {
     "easy":   {"grid": 8,  "bombs_min": 6,  "bombs_max": 10},
     "medium": {"grid": 10, "bombs_min": 10,  "bombs_max": 15},
-    "hard":   {"grid": 12, "bombs_min": 100, "bombs_max": 120},
+    "hard":   {"grid": 12, "bombs_min": 40, "bombs_max": 50},
 }
 
 DIFFICULTIES = {
