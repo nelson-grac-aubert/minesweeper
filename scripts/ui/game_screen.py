@@ -138,9 +138,9 @@ class GameScreen:
                     pygame.time.get_ticks() - self.start_ticks) // 1000
                 return "shop"
 
-            if self.game_over or self.won:
-                if self.retry_button.is_clicked(event):
-                    return ("new_game", self.grid_size, self.num_bombs)
+            
+            if self.retry_button.is_clicked(event):
+                return ("new_game", self.grid_size, self.num_bombs)
 
             if self.back_rect.collidepoint(event.pos):
                 return "home"
