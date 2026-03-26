@@ -3,8 +3,6 @@ import os
 import random
 import pygame
 
-
-# Add the colleague's tiles directory to sys.path so their bare imports work
 _TILES_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', 'logic', 'tiles'))
 if _TILES_DIR not in sys.path:
@@ -20,9 +18,9 @@ from scripts.logic.utils.assets_imports import load_image
 from scripts.ui.ui_settings import *
 from scripts.ui.pub import AdBanner
 
-
 _HEADER_H = 70
 _PAD      = 20
+
 
 class GameScreen:
 
@@ -30,7 +28,7 @@ class GameScreen:
                  grid_size: int, num_bombs: int, difficulty: str,
                  unlocked_skins: list):
 
-        self.map_mode = random.choice(["grid", "heart"])  # string, not tuple
+        self.map_mode = random.choice(["grid", "grid", "grid", "heart"])
 
         self.screen         = screen
         self.grid_size      = grid_size
@@ -47,7 +45,6 @@ class GameScreen:
             board_cols  = grid_size
             board_rows  = grid_size
 
-        # Center the grid below the header
         gpx    = board_cols * TILESIZE
         gpy    = board_rows * TILESIZE
         play_h = WINDOW_H - _HEADER_H - _PAD * 2
@@ -55,7 +52,6 @@ class GameScreen:
         self.oy = _HEADER_H + _PAD + max(0, (play_h - gpy) // 2)
         self._grid_rect = pygame.Rect(self.ox, self.oy, gpx, gpy)
 
-        # Map UI difficulty name to the colleague's settings key
         _DIFF_MAP       = {"easy": "facile", "medium": "normal", "hard": "pay"}
         settings_key    = _DIFF_MAP.get(difficulty, "normal")
         self.time_limit = DIFFICULTIES[settings_key]["time_limit"]
@@ -66,12 +62,12 @@ class GameScreen:
         self.game_over   = False
         self.won         = False
 
-        self._font      = pygame.font.SysFont("Arial", 22, bold=True)
-        self._font_big  = pygame.font.SysFont("Arial", 52, bold=True)
-        self._font_sub  = pygame.font.SysFont("Arial", 20)
-        self._font_back = pygame.font.SysFont("monospace", 20, bold=True)
+        self._font     = pygame.font.SysFont("Arial", 22, bold=True)
 
-        # Shop button rect (used for click detection)
+        # Victory / Game Over assets
+        self._victory_img   = load_image("assets/images/victory.png")
+        self._game_over_img = load_image("assets/images/game_over.png")
+
         shop_w, shop_h = 160, 50
         self.shop_rect = pygame.Rect(
             WINDOW_W - shop_w - 75,
@@ -79,36 +75,30 @@ class GameScreen:
             shop_w, shop_h,
         )
 
-        # End-of-game buttons (shown only on game over / win)
-        btn_w, btn_h = 180, 50
-        center_y = WINDOW_H // 2 - 80
-        self.retry_rect = pygame.Rect(WINDOW_W // 2 - btn_w - 20, center_y, btn_w, btn_h)
-        self.home_rect  = pygame.Rect(WINDOW_W // 2 + 20,          center_y, btn_w, btn_h)
-
-        # Back button rectangle (position reference)
         back_w, back_h = 160, 50
         self.back_rect = pygame.Rect(
             (WINDOW_W - back_w) // 2,
-            WINDOW_H - back_h - 40,
-            back_w, back_h
+            WINDOW_H - back_h - 5,
+            back_w, back_h,
         )
 
-        # Ad banner — même largeur que la grille, collée JUSTE AU-DESSUS de la grille
         pub_h = 90
         pub_x = self._grid_rect.left
         pub_w = self._grid_rect.width
         pub_y = self._grid_rect.top - pub_h - 4
         self.pub_banner = AdBanner(screen, pub_x, pub_y, pub_w, pub_h)
 
-        # Back button sprite
         self.back_button = Button("assets/images/return_button.png",
-                                center=self.back_rect.center)
+                                  self.back_rect.center, 1.5)
 
-        # Shop button sprite (remplace le label texte)
         self.shop_button = Button("assets/images/store.png",
                                   self.shop_rect.center, 2)
 
-        # Pre-load all flag sprites scaled to TILESIZE
+        # Replay button
+        replay_center = (WINDOW_W // 2, self.back_rect.top - 20)
+        self.retry_button = Button("assets/images/replay.png",
+                                   replay_center, 1.5)
+
         self._flag_images: dict[str, pygame.Surface] = {}
         for skin, path in SKIN_ASSETS.items():
             raw = load_image(path)
@@ -143,18 +133,14 @@ class GameScreen:
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 
-            # Shop button is always clickable
             if self.shop_rect.collidepoint(event.pos):
                 self.elapsed_before_shop = (
                     pygame.time.get_ticks() - self.start_ticks) // 1000
                 return "shop"
 
-            # End-of-game buttons
             if self.game_over or self.won:
-                if self.retry_rect.collidepoint(event.pos):
+                if self.retry_button.is_clicked(event):
                     return ("new_game", self.grid_size, self.num_bombs)
-                if self.home_rect.collidepoint(event.pos):
-                    return "home"
 
             if self.back_rect.collidepoint(event.pos):
                 return "home"
@@ -184,13 +170,11 @@ class GameScreen:
             if tile.type == "/":
                 return None
 
-            # Place mines on first click, keeping the clicked cell and its neighbors safe
             if not self.board.mines_placed:
                 self.board.place_mines(row, col)
 
             if event.button == 1 and tile.marker == "none" and not tile.revealed:
                 if not self.board.dig(row, col):
-                    # Mine hit: reveal the whole board
                     for board_row in self.board.board_list:
                         for t in board_row:
                             if t.marker == "flag" and t.type != "X":
@@ -203,7 +187,6 @@ class GameScreen:
                     self.playing   = False
 
                 elif self.board.check_win():
-                    # Flag all remaining mines
                     for board_row in self.board.board_list:
                         for t in board_row:
                             if not t.revealed:
@@ -217,44 +200,50 @@ class GameScreen:
         return None
 
     def update(self, dt_ms: int) -> None:
-        """Appeler chaque frame avec le delta-time en millisecondes."""
+        """Call every frame with the delta-time in milliseconds."""
         self.pub_banner.update(dt_ms)
 
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
 
-        # Draw the board onto a subsurface so the colleague's code uses (0,0) coords
         grid_surf = self.screen.subsurface(self._grid_rect)
         self.board.draw(grid_surf)
 
-        # Ad banner — juste AU-DESSUS de la grille, même largeur
         self.pub_banner.draw()
 
-        # Header background
         pygame.draw.rect(self.screen, OVERLAY_COLOR,
                          pygame.Rect(0, 0, WINDOW_W, _HEADER_H))
         pygame.draw.line(self.screen, ACCENT_COLOR,
                          (0, _HEADER_H), (WINDOW_W, _HEADER_H), 2)
 
-        # Countdown timer (turns red under 10 seconds)
-        elapsed   = (pygame.time.get_ticks() - self.start_ticks) // 1000
-        remaining = max(0, self.time_limit - elapsed)
-        if self.playing and remaining == 0:
-            self.game_over = True
-            self.playing   = False
-        timer_color = (243, 139, 168) if remaining <= 10 else TEXT_COLOR
-        timer_surf  = self._font.render(f"Time left : {remaining}s", True, timer_color)
-        self.screen.blit(timer_surf,
-                         timer_surf.get_rect(center=(WINDOW_W // 2, _HEADER_H // 2)))
+        # Timer or banner in header
+        header_center = (WINDOW_W // 2, _HEADER_H // 2)
 
-        # Difficulty + map mode label (right side of header)
+        if self.game_over or self.won:
+            banner = self._victory_img if self.won else self._game_over_img
+            banner_rect = banner.get_rect(center=header_center)
+            self.screen.blit(banner, banner_rect)
+        else:
+            elapsed   = (pygame.time.get_ticks() - self.start_ticks) // 1000
+            remaining = max(0, self.time_limit - elapsed)
+
+            if self.playing and remaining == 0:
+                self.game_over = True
+                self.playing   = False
+
+            timer_color = (243, 139, 168) if remaining <= 10 else TEXT_COLOR
+            timer_surf  = self._font.render(f"Time left : {remaining}s", True, timer_color)
+            self.screen.blit(timer_surf,
+                             timer_surf.get_rect(center=header_center))
+
+        # Mode + Diff
         map_label = "♥ Cœur" if self.map_mode == "heart" else "Grille"
         diff_surf = self._font.render(
             f"Mode : {self.difficulty.upper()}  {map_label}", True, ACCENT_COLOR)
         self.screen.blit(diff_surf,
                          diff_surf.get_rect(midright=(WINDOW_W - _PAD, _HEADER_H // 2)))
 
-        # Flag skin selector (left side of header)
+        # Skins
         self._rebuild_skin_buttons()
         for skin, rect in self._skin_btns:
             is_active  = (skin == self._current_skin)
@@ -265,35 +254,7 @@ class GameScreen:
             border_col = TEXT_COLOR if is_active else (88, 91, 112)
             pygame.draw.rect(self.screen, border_col, rect, width=2, border_radius=6)
 
-        # Shop button sprite
+        # Buttons
         self.shop_button.draw(self.screen)
-
-        # Back button sprite
+        self.retry_button.draw(self.screen)
         self.back_button.draw(self.screen)
-
-        # End-of-game overlay
-        if self.game_over or self.won:
-            overlay = pygame.Surface((WINDOW_W, WINDOW_H), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 150))
-            self.screen.blit(overlay, (0, 0))
-
-            msg     = "VICTOIRE !" if self.won else "GAME OVER"
-            msg_col = (166, 227, 161) if self.won else (243, 139, 168)
-            big     = self._font_big.render(msg, True, msg_col)
-            self.screen.blit(big, big.get_rect(
-                center=(WINDOW_W // 2, WINDOW_H // 2 - 180)))
-
-            self._draw_btn(self.retry_rect, "Rejouer")
-            self._draw_btn(self.home_rect,  "⌂ Menu")
-
-    def _draw_btn(self, rect: pygame.Rect, label: str, accent: bool = False):
-        hover = rect.collidepoint(pygame.mouse.get_pos())
-        if accent:
-            bg = ACCENT_COLOR if not hover else TEXT_COLOR
-            fg = BG_COLOR
-        else:
-            bg = ACCENT_COLOR if hover else BACK_COLOR
-            fg = BG_COLOR if hover else TEXT_COLOR
-        pygame.draw.rect(self.screen, bg, rect, border_radius=10)
-        surf = self._font_back.render(label, True, fg)
-        self.screen.blit(surf, surf.get_rect(center=rect.center))
