@@ -83,9 +83,10 @@ class GameScreen:
         )
 
         pub_h = 90
-        pub_x = self._grid_rect.left
-        pub_w = self._grid_rect.width
-        pub_y = self._grid_rect.top - pub_h - 4
+        pub_w = 420
+        pub_x = self._grid_rect.centerx - pub_w // 2
+        pub_y = self._grid_rect.top - pub_h - 10
+
         self.pub_banner = AdBanner(screen, pub_x, pub_y, pub_w, pub_h)
 
         self.back_button = Button("assets/images/return_button.png",
