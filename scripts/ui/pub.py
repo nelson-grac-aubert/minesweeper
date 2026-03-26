@@ -1,4 +1,3 @@
-
 # Bannière publicitaire fictive pour MicrotransacMines.
 # Usage : AdBanner(screen, x, y, width, height) puis .update() + .draw() chaque frame.
 
@@ -37,7 +36,6 @@ ADS = [
     {
         "brand":   "FlagMaster 9000",
         "tagline": "Pose ton drapeau. Pose-le mieux.",
-        "sub":     "Accessoire e-sport certifié ISO-MINE",
         "sub":     "★★★★★  —  2 acheteurs satisfaits",
         "bg":      (40,  20,  10),
         "accent":  (255, 200, 0),
@@ -58,7 +56,7 @@ ADS = [
 
 class AdBanner:
     """
-    Bannière publicitaire animée.
+    Bannière publicitaire animée avec transition en slide gauche/droite.
 
     Paramètres
     ----------
@@ -69,7 +67,7 @@ class AdBanner:
     """
 
     ROTATE_MS  = 4000   # durée d'affichage d'une pub (ms)
-    ANIM_MS    = 400    # durée du fondu entre deux pubs (ms)
+    ANIM_MS    = 350    # durée du slide (ms)
 
     def __init__(self, screen, x, y, width, height):
         self.screen = screen
@@ -79,13 +77,16 @@ class AdBanner:
         self._surf_a = pygame.Surface((width, height), pygame.SRCALPHA)
         self._surf_b = pygame.Surface((width, height), pygame.SRCALPHA)
 
+        # Clip rect pour masquer ce qui dépasse pendant le slide
+        self._clip = pygame.Rect(x, y, width, height)
+
         # État
-        self._ads         = ADS[:]
+        self._ads           = ADS[:]
         random.shuffle(self._ads)
-        self._idx         = 0
-        self._t           = 0          # ms depuis dernier changement
-        self._alpha       = 255        # alpha de surf_a (fondu)
+        self._idx           = 0
+        self._t             = 0        # ms depuis dernier changement
         self._transitioning = False
+        self._slide_x       = 0.0     # décalage horizontal courant (pixels, float)
 
         # Polices
         self._font_brand   = pygame.font.SysFont("consolas", height // 3, bold=True)
@@ -105,7 +106,7 @@ class AdBanner:
             for _ in range(18)
         ]
 
-    #  accès
+    # ── accès ────────────────────────────────────────────────────────────────
 
     def _current_ad(self):
         return self._ads[self._idx % len(self._ads)]
@@ -113,7 +114,14 @@ class AdBanner:
     def _next_ad(self):
         return self._ads[(self._idx + 1) % len(self._ads)]
 
-    #  rendu d'une pub
+    # ── ease ─────────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _ease_in_out(t: float) -> float:
+        """Courbe cubique ease-in-out pour un slide fluide."""
+        return t * t * (3.0 - 2.0 * t)
+
+    # ── rendu d'une pub ───────────────────────────────────────────────────────
 
     def _render(self, surf, ad):
         surf.fill(ad["bg"])
@@ -153,14 +161,15 @@ class AdBanner:
         close_surf = self._font_sub.render("✕", True, (80, 80, 80))
         surf.blit(close_surf, (w - close_surf.get_width() - 4, h - close_surf.get_height() - 4))
 
-    #  update / draw
+    # ── update / draw ─────────────────────────────────────────────────────────
 
     def update(self, dt_ms):
         """Appeler chaque frame avec le delta-time en millisecondes."""
         self._t += dt_ms
+        w = self.rect.width
 
         # Anime les particules
-        w, h = self.rect.width, self.rect.height
+        h = self.rect.height
         for p in self._particles:
             p[0] += p[2]
             p[1] += p[3]
@@ -169,42 +178,54 @@ class AdBanner:
             if p[1] < 0 or p[1] > h:
                 p[3] *= -1
 
-        # Déclenchement de la transition
+        # Déclenchement du slide
         if not self._transitioning and self._t >= self.ROTATE_MS:
             self._transitioning = True
-            self._t = 0
+            self._t             = 0
+            self._slide_x       = 0.0
 
-        # Fondu
+        # Animation slide
         if self._transitioning:
-            progress     = min(self._t / self.ANIM_MS, 1.0)
-            self._alpha  = int(255 * (1.0 - progress))
+            progress      = min(self._t / self.ANIM_MS, 1.0)
+            eased         = self._ease_in_out(progress)
+            self._slide_x = eased * w          # surf_a part vers la gauche
+
             if progress >= 1.0:
-                self._idx         += 1
-                self._alpha        = 255
+                # Transition terminée : on avance
+                self._idx          += 1
+                self._slide_x       = 0.0
                 self._transitioning = False
-                self._t            = 0
+                self._t             = 0
                 self._render(self._surf_a, self._current_ad())
                 self._render(self._surf_b, self._next_ad())
 
     def draw(self):
         """Dessine la bannière sur le screen fourni à l'init."""
+        w = self.rect.width
+        ox, oy = self.rect.topleft
+
+        # Activer le clipping pour que les surfaces ne débordent pas
+        old_clip = self.screen.get_clip()
+        self.screen.set_clip(self._clip)
+
+        if self._transitioning:
+            # surf_a glisse vers la gauche
+            self.screen.blit(self._surf_a, (ox - int(self._slide_x), oy))
+            # surf_b arrive depuis la droite
+            self.screen.blit(self._surf_b, (ox + w - int(self._slide_x), oy))
+        else:
+            self.screen.blit(self._surf_a, (ox, oy))
+
+        # Restaurer le clip
+        self.screen.set_clip(old_clip)
+
+        # Particules par-dessus (dans la zone clippée à la main)
         ad = self._current_ad()
-        w, h = self.rect.width, self.rect.height
-
-        # Fond de surf_b (prochaine pub) visible pendant le fondu
-        self.screen.blit(self._surf_b, self.rect.topleft)
-
-        # Surf_a (pub courante) avec alpha décroissant
-        self._surf_a.set_alpha(self._alpha)
-        self.screen.blit(self._surf_a, self.rect.topleft)
-
-        # Particules par-dessus
         for p in self._particles:
-            px = int(self.rect.x + p[0])
-            py = int(self.rect.y + p[1])
-            pygame.draw.circle(self.screen, ad["accent"], (px, py), p[4], 1)
+            px = int(ox + p[0])
+            py = int(oy + p[1])
+            if self._clip.collidepoint(px, py):
+                pygame.draw.circle(self.screen, ad["accent"], (px, py), p[4], 1)
 
         # Bordure externe
         pygame.draw.rect(self.screen, ad["accent"], self.rect, 2)
-
-

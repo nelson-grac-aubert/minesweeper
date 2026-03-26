@@ -35,7 +35,6 @@ class GameScreen:
 
         self.map_mode = random.choice(["grid", "heart"])  # string, not tuple
 
-        self.pub_banner      = AdBanner(screen, 30, WINDOW_H - 120, 300, 90)  
         self.screen         = screen
         self.grid_size      = grid_size
         self.num_bombs      = num_bombs
@@ -96,6 +95,13 @@ class GameScreen:
             WINDOW_H - back_h - 40,
             back_w, back_h,
         )
+
+        # Ad banner — même largeur que la grille, collée JUSTE AU-DESSUS de la grille
+        pub_h = 90
+        pub_x = self._grid_rect.left
+        pub_w = self._grid_rect.width
+        pub_y = self._grid_rect.top - pub_h - 4
+        self.pub_banner = AdBanner(screen, pub_x, pub_y, pub_w, pub_h)
 
         # Pre-load all flag sprites scaled to TILESIZE
         self._flag_images: dict[str, pygame.Surface] = {}
@@ -205,12 +211,19 @@ class GameScreen:
 
         return None
 
+    def update(self, dt_ms: int) -> None:
+        """Appeler chaque frame avec le delta-time en millisecondes."""
+        self.pub_banner.update(dt_ms)
+
     def draw(self) -> None:
         self.screen.fill(BG_COLOR)
 
         # Draw the board onto a subsurface so the colleague's code uses (0,0) coords
         grid_surf = self.screen.subsurface(self._grid_rect)
         self.board.draw(grid_surf)
+
+        # Ad banner — juste AU-DESSUS de la grille, même largeur
+        self.pub_banner.draw()
 
         # Header background
         pygame.draw.rect(self.screen, OVERLAY_COLOR,
@@ -284,4 +297,3 @@ class GameScreen:
         pygame.draw.rect(self.screen, bg, rect, border_radius=10)
         surf = self._font_back.render(label, True, fg)
         self.screen.blit(surf, surf.get_rect(center=rect.center))
-        self.pub_banner.draw()

@@ -31,7 +31,8 @@ def main():
 
     while True:
 
-        dt = clock.tick(FPS) / 1000
+        dt_ms = clock.tick(FPS)          # millisecondes (entier)
+        dt    = dt_ms / 1000             # secondes (float) pour les autres écrans
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -104,6 +105,7 @@ def main():
         elif current == SCREEN_PURCHASE:
             purchase.draw()
         elif current == SCREEN_GAME and game_screen:
+            game_screen.update(dt_ms)   # ← anime la pub (ms)
             game_screen.draw()
 
         pygame.display.flip()
