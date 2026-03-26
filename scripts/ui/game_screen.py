@@ -243,7 +243,7 @@ class GameScreen:
                          timer_surf.get_rect(center=(WINDOW_W // 2, _HEADER_H // 2)))
 
         # Difficulty + map mode label (right side of header)
-        map_label = "♥ Cœur" if self.map_mode == "heart" else "⊞ Grille"
+        map_label = "♥ Cœur" if self.map_mode == "heart" else "Grille"
         diff_surf = self._font.render(
             f"Mode : {self.difficulty.upper()}  {map_label}", True, ACCENT_COLOR)
         self.screen.blit(diff_surf,

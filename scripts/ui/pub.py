@@ -36,7 +36,7 @@ ADS = [
     {
         "brand":   "FlagMaster 9000",
         "tagline": "Pose ton drapeau. Pose-le mieux.",
-        "sub":     "★★★★★  —  2 acheteurs satisfaits",
+        "sub":     "5 étoiles  —  2 acheteurs satisfaits",
         "bg":      (40,  20,  10),
         "accent":  (255, 200, 0),
         "badge":   "TOP VENTE",
