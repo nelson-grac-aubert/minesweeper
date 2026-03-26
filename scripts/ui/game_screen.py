@@ -3,7 +3,6 @@ import os
 import random
 import pygame
 
-
 _TILES_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', 'logic', 'tiles'))
 if _TILES_DIR not in sys.path:
@@ -18,7 +17,6 @@ from scripts.ui.button import Button
 from scripts.logic.utils.assets_imports import load_image
 from scripts.ui.ui_settings import *
 from scripts.ui.pub import AdBanner
-
 
 _HEADER_H = 70
 _PAD      = 20
@@ -65,8 +63,10 @@ class GameScreen:
         self.won         = False
 
         self._font     = pygame.font.SysFont("Arial", 22, bold=True)
-        self._font_big = pygame.font.SysFont("Arial", 52, bold=True)
-        self._font_sub = pygame.font.SysFont("Arial", 20)
+
+        # Victory / Game Over assets
+        self._victory_img   = load_image("assets/images/victory.png")
+        self._game_over_img = load_image("assets/images/game_over.png")
 
         shop_w, shop_h = 160, 50
         self.shop_rect = pygame.Rect(
@@ -78,7 +78,7 @@ class GameScreen:
         back_w, back_h = 160, 50
         self.back_rect = pygame.Rect(
             (WINDOW_W - back_w) // 2,
-            WINDOW_H - back_h - 40,
+            WINDOW_H - back_h - 5,
             back_w, back_h,
         )
 
@@ -89,15 +89,15 @@ class GameScreen:
         self.pub_banner = AdBanner(screen, pub_x, pub_y, pub_w, pub_h)
 
         self.back_button = Button("assets/images/return_button.png",
-                                  self.back_rect.center, 2)
+                                  self.back_rect.center, 1.5)
 
         self.shop_button = Button("assets/images/store.png",
                                   self.shop_rect.center, 2)
 
-        # Replay button: horizontally centered, just below the game grid
-        replay_center = (WINDOW_W // 2, self._grid_rect.bottom + _PAD * 2)
+        # Replay button
+        replay_center = (WINDOW_W // 2, self.back_rect.top - 20)
         self.retry_button = Button("assets/images/replay.png",
-                                   replay_center, 2)
+                                   replay_center, 1.5)
 
         self._flag_images: dict[str, pygame.Surface] = {}
         for skin, path in SKIN_ASSETS.items():
@@ -216,22 +216,34 @@ class GameScreen:
         pygame.draw.line(self.screen, ACCENT_COLOR,
                          (0, _HEADER_H), (WINDOW_W, _HEADER_H), 2)
 
-        elapsed   = (pygame.time.get_ticks() - self.start_ticks) // 1000
-        remaining = max(0, self.time_limit - elapsed)
-        if self.playing and remaining == 0:
-            self.game_over = True
-            self.playing   = False
-        timer_color = (243, 139, 168) if remaining <= 10 else TEXT_COLOR
-        timer_surf  = self._font.render(f"Time left : {remaining}s", True, timer_color)
-        self.screen.blit(timer_surf,
-                         timer_surf.get_rect(center=(WINDOW_W // 2, _HEADER_H // 2)))
+        # Timer or banner in header
+        header_center = (WINDOW_W // 2, _HEADER_H // 2)
 
+        if self.game_over or self.won:
+            banner = self._victory_img if self.won else self._game_over_img
+            banner_rect = banner.get_rect(center=header_center)
+            self.screen.blit(banner, banner_rect)
+        else:
+            elapsed   = (pygame.time.get_ticks() - self.start_ticks) // 1000
+            remaining = max(0, self.time_limit - elapsed)
+
+            if self.playing and remaining == 0:
+                self.game_over = True
+                self.playing   = False
+
+            timer_color = (243, 139, 168) if remaining <= 10 else TEXT_COLOR
+            timer_surf  = self._font.render(f"Time left : {remaining}s", True, timer_color)
+            self.screen.blit(timer_surf,
+                             timer_surf.get_rect(center=header_center))
+
+        # Mode + Diff
         map_label = "♥ Cœur" if self.map_mode == "heart" else "Grille"
         diff_surf = self._font.render(
             f"Mode : {self.difficulty.upper()}  {map_label}", True, ACCENT_COLOR)
         self.screen.blit(diff_surf,
                          diff_surf.get_rect(midright=(WINDOW_W - _PAD, _HEADER_H // 2)))
 
+        # Skins
         self._rebuild_skin_buttons()
         for skin, rect in self._skin_btns:
             is_active  = (skin == self._current_skin)
@@ -242,18 +254,7 @@ class GameScreen:
             border_col = TEXT_COLOR if is_active else (88, 91, 112)
             pygame.draw.rect(self.screen, border_col, rect, width=2, border_radius=6)
 
+        # Buttons
         self.shop_button.draw(self.screen)
+        self.retry_button.draw(self.screen)
         self.back_button.draw(self.screen)
-
-        if self.game_over or self.won:
-            overlay = pygame.Surface((WINDOW_W, WINDOW_H), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 150))
-            self.screen.blit(overlay, (0, 0))
-
-            msg     = "VICTOIRE !" if self.won else "GAME OVER"
-            msg_col = (166, 227, 161) if self.won else (243, 139, 168)
-            big     = self._font_big.render(msg, True, msg_col)
-            self.screen.blit(big, big.get_rect(
-                center=(WINDOW_W // 2, WINDOW_H // 2 - 220)))
-
-            self.retry_button.draw(self.screen)
