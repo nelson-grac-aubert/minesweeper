@@ -2,6 +2,7 @@ import sys
 import os
 import random
 import pygame
+import webbrowser
 
 _TILES_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', 'logic', 'tiles'))
@@ -82,6 +83,16 @@ class GameScreen:
             WINDOW_H - back_h - 5,
             back_w, back_h,
         )
+
+        # Banner ads
+        buddy_ad = load_image("assets/images/budget_ad.png")
+        jam_ad = load_image("assets/images/jam_ad.png")
+        ad_w, ad_h = buddy_ad.get_size() 
+        self.buddy_ad = pygame.transform.scale(buddy_ad, (ad_w, ad_h))
+        self.jam_ad = pygame.transform.scale(jam_ad, (ad_w, ad_h))
+        # Ads position
+        self.ad_left_rect  = self.buddy_ad.get_rect(midleft=(40, WINDOW_H // 2 + 100))
+        self.ad_right_rect = self.jam_ad.get_rect(midright=(WINDOW_W - 40, WINDOW_H // 2 - 30))
 
         pub_h = 90
         pub_w = 420
@@ -172,6 +183,15 @@ class GameScreen:
             for skin, rect in self._skin_btns:
                 if rect.collidepoint(event.pos):
                     self._apply_skin(skin)
+                    return None
+            
+                    # Ad
+            if not self.ads_removed and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.ad_left_rect.collidepoint(event.pos):
+                    webbrowser.open("https://github.com/nelson-grac-aubert/budget_buddy/releases/")
+                    return None
+                elif self.ad_right_rect.collidepoint(event.pos):
+                    webbrowser.open("https://itch.io/jam/brackeys-15/rate/4310895")
                     return None
 
         if not self.playing:
@@ -286,4 +306,9 @@ class GameScreen:
 
         for button in self.all_shop_buttons:
             button.draw(self.screen)
+
+        # Ads
+        if not self.ads_removed:
+            self.screen.blit(self.buddy_ad, self.ad_left_rect)
+            self.screen.blit(self.jam_ad, self.ad_right_rect)
 
