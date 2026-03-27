@@ -16,10 +16,6 @@ BGCOLOUR = DARKGREY
 
 # Game settings
 TILESIZE = 32
-ROWS = 15
-COLS = 15
-WIDTH = TILESIZE * ROWS
-HEIGHT = TILESIZE * COLS
 FPS = 60
 TITLE = "MicrotransacMines"
 
