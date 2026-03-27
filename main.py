@@ -27,7 +27,7 @@ def main():
 
     # Skins
     unlocked_skins = ["default"]
-     # Tracks whether the ads have been removed 
+    # Tracks whether the ads have been removed 
     ads_removed    = False        
 
     while True:
