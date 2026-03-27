@@ -1,5 +1,4 @@
 import pygame
-import os
 
 from scripts.logic.utils.assets_imports import load_image
 
