@@ -1,6 +1,7 @@
-# COLORS (r, g, b)
 import pygame
 import os
+
+from scripts.logic.utils.assets_imports import load_image
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -13,11 +14,10 @@ RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 BGCOLOUR = DARKGREY
 
-# game settings
+# Game settings
 TILESIZE = 32
 ROWS = 15
 COLS = 15
-AMOUNT_MINES = 5
 WIDTH = TILESIZE * ROWS
 HEIGHT = TILESIZE * COLS
 FPS = 60
