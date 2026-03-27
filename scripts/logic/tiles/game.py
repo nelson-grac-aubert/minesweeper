@@ -29,7 +29,6 @@ class Game:
     def new(self):
         # 1. random map
         self.map_mode = random.choice(MAP_MODES)
-        print(f"[MAP] mode tiré : {self.map_mode}")   # ← visible dans le terminal
 
         # 2. parameter difficulty
         settings          = DIFFICULTIES[self.difficulty]

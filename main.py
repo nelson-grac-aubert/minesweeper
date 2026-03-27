@@ -22,13 +22,13 @@ def main():
     purchase    = Purchase(screen)
     game_screen = None
 
-    current       = SCREEN_HOME
-    previous      = SCREEN_HOME   # ← memorizes the screen before the shop
+    current       = SCREEN_HOME         
+    previous      = SCREEN_HOME   # Memorize previous screen
+
     # Skins
     unlocked_skins = ["default"]
-    ads_removed    = False         # ← NEW : tracks whether ads have been removed
-
-    current = SCREEN_HOME
+     # Tracks whether the ads have been removed 
+    ads_removed    = False        
 
     while True:
 
