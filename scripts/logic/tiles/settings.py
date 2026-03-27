@@ -39,12 +39,13 @@ DIFFICULTIES = {
 
 tile_numbers = []
 for i in range(1, 9):
-    tile_numbers.append(pygame.transform.scale(pygame.image.load(os.path.join("assets\images", f"revealed_tile_{i}.png")), (TILESIZE, TILESIZE)))
+    img = load_image(f"assets/images/revealed_tile_{i}.png")
+    tile_numbers.append(pygame.transform.scale(img, (TILESIZE, TILESIZE)))
 
-tile_empty = pygame.transform.scale(pygame.image.load(os.path.join("assets\images", "revealed_tile.png")), (TILESIZE, TILESIZE))
-tile_exploded = pygame.transform.scale(pygame.image.load(os.path.join("assets\images", "TileExploded.png")), (TILESIZE, TILESIZE))
-tile_flag = pygame.transform.scale(pygame.image.load(os.path.join("assets\images", "masked_tile_flag.png")), (TILESIZE, TILESIZE))
-tile_mine = pygame.transform.scale(pygame.image.load(os.path.join("assets\images", "revealed_tile_bomb.png")), (TILESIZE, TILESIZE))
-tile_unknown = pygame.transform.scale(pygame.image.load(os.path.join("assets\images", "masked_tile.png")), (TILESIZE, TILESIZE))
-tile_not_mine = pygame.transform.scale(pygame.image.load(os.path.join("assets\images", "TileNotMine.png")), (TILESIZE, TILESIZE))
-tile_question_mark = pygame.transform.scale(pygame.image.load(os.path.join("assets\images", "masked_tile_question_mark.png")), (TILESIZE, TILESIZE))
+tile_empty = pygame.transform.scale(load_image("assets/images/revealed_tile.png"), (TILESIZE, TILESIZE))
+tile_exploded = pygame.transform.scale(load_image("assets/images/TileExploded.png"), (TILESIZE, TILESIZE))
+tile_flag = pygame.transform.scale(load_image("assets/images/masked_tile_flag.png"), (TILESIZE, TILESIZE))
+tile_mine = pygame.transform.scale(load_image("assets/images/revealed_tile_bomb.png"), (TILESIZE, TILESIZE))
+tile_unknown = pygame.transform.scale(load_image("assets/images/masked_tile.png"), (TILESIZE, TILESIZE))
+tile_not_mine = pygame.transform.scale(load_image("assets/images/TileNotMine.png"), (TILESIZE, TILESIZE))
+tile_question_mark = pygame.transform.scale(load_image("assets/images/masked_tile_question_mark.png"), (TILESIZE, TILESIZE))

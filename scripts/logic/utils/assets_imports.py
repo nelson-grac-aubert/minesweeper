@@ -24,8 +24,7 @@ def load_image(path: str) -> pygame.Surface:
         convert_alpha for a transparent background .png """
     full_path = resource_path(path)
     try:
-        image = pygame.image.load(full_path)
-        return image.convert_alpha()
+        return pygame.image.load(full_path)
     except Exception as e:
         raise FileNotFoundError(f"Can't load image : {full_path}\n{e}")
 
