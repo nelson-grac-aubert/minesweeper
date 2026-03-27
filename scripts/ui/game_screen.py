@@ -84,12 +84,11 @@ class GameScreen:
             back_w, back_h,
         )
 
-        # Banner ads
-        buddy_ad = load_image("assets/images/budget_ad.png")
-        jam_ad = load_image("assets/images/jam_ad.png")
-        ad_w, ad_h = buddy_ad.get_size() 
-        self.buddy_ad = pygame.transform.scale(buddy_ad, (ad_w, ad_h))
-        self.jam_ad = pygame.transform.scale(jam_ad, (ad_w, ad_h))
+        # Load banner ads 
+        self.buddy_ad = load_image("assets/images/budget_ad.png")
+        self.jam_ad = load_image("assets/images/jam_ad.png")
+        ad_w, ad_h = self.buddy_ad.get_size() 
+
         # Ads position
         self.ad_left_rect  = self.buddy_ad.get_rect(midleft=(40, WINDOW_H // 2 + 100))
         self.ad_right_rect = self.jam_ad.get_rect(midright=(WINDOW_W - 40, WINDOW_H // 2 - 30))
@@ -131,11 +130,10 @@ class GameScreen:
     def generate_shop_button_positions(self):
         positions = []
 
-        shop_w, shop_h = 160, 50
+        shop_w = 160 
         spacing_from_edge = 68
 
         # Right buttons
-
         right_x = WINDOW_W - shop_w - spacing_from_edge
         right_y = 5 * WINDOW_H // 6
         positions.append((right_x, right_y))
@@ -185,7 +183,7 @@ class GameScreen:
                     self._apply_skin(skin)
                     return None
             
-                    # Ad
+            # Clicking on ads open browers to an ad 
             if not self.ads_removed and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.ad_left_rect.collidepoint(event.pos):
                     webbrowser.open("https://github.com/nelson-grac-aubert/budget_buddy/releases/")
@@ -245,7 +243,7 @@ class GameScreen:
 
     def update(self, dt_ms: int) -> None:
         """Call every frame with the delta-time in milliseconds."""
-        if not self.ads_removed:          # ← NEW : only update banner if ads are active
+        if not self.ads_removed:          # Only update banner if ads are active 
             self.pub_banner.update(dt_ms)
 
     def draw(self) -> None:
@@ -254,7 +252,7 @@ class GameScreen:
         grid_surf = self.screen.subsurface(self._grid_rect)
         self.board.draw(grid_surf)
 
-        if not self.ads_removed:          # ← NEW : only draw banner if ads are active
+        if not self.ads_removed:          # Only draw banner if ads are active 
             self.pub_banner.draw()
 
         pygame.draw.rect(self.screen, OVERLAY_COLOR,
@@ -277,6 +275,7 @@ class GameScreen:
                 self.game_over = True
                 self.playing   = False
 
+            # Timer becomes red when time left is short
             timer_color = (243, 139, 168) if remaining <= 10 else TEXT_COLOR
             timer_surf  = self._font.render(f"Time left : {remaining}s", True, timer_color)
             self.screen.blit(timer_surf,
@@ -300,10 +299,11 @@ class GameScreen:
             border_col = TEXT_COLOR if is_active else (88, 91, 112)
             pygame.draw.rect(self.screen, border_col, rect, width=2, border_radius=6)
 
-        # Buttons
+        # Navigation buttons
         self.retry_button.draw(self.screen)
         self.back_button.draw(self.screen)
 
+        # 2 shop buttons 
         for button in self.all_shop_buttons:
             button.draw(self.screen)
 
