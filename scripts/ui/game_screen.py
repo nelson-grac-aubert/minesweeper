@@ -276,7 +276,7 @@ class GameScreen:
                 self.playing   = False
 
             # Timer becomes red when time left is short
-            timer_color = (243, 139, 168) if remaining <= 10 else TEXT_COLOR
+            timer_color = TIME_COLOR if remaining <= 10 else TEXT_COLOR
             timer_surf  = self._font.render(f"Time left : {remaining}s", True, timer_color)
             self.screen.blit(timer_surf,
                              timer_surf.get_rect(center=header_center))
